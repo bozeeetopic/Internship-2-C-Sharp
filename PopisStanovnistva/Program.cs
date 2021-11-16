@@ -3,26 +3,43 @@ using System.Collections.Generic;
 
 namespace PopisStanovnistva
 {
+    public class PersonData
+    {
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public DateTime DateOfBirth { get; set; }
+    }
     class Program
     {
         static void Main(string[] args)
         {
-            List<Dictionary<string, (string, string, DateTime)>> populace = new List<Dictionary<string, (string, string, DateTime)>>();
-            PopulatePopulace(populace);
+            var populace = PopulatePopulace();
             string inputToContinue;
             do
             {
-                Mainfunction(populace);
-                Console.Write("Želite li još nešto napraviti? ");
-                inputToContinue = Console.ReadLine();
+                if (Mainfunction(false, populace))
+                {
+                    Console.Write("Želite li još nešto napraviti? ");
+                    inputToContinue = Console.ReadLine();
+                }
+                else inputToContinue = "da";
             }
             while (inputToContinue == "da");
         }
 
-        static void PopulatePopulace(List<Dictionary<string, (string, string, DateTime)>> populace)
+        static Dictionary<string, PersonData> PopulatePopulace()
         {
-            var touple = (name: "", surname: "", dateOfBirth: DateTime.Now);
-            populace.Add(new Dictionary<string, (string, string, DateTime)> {"oib",touple});
+            return new Dictionary<string, PersonData>
+    {
+        {"K",
+            new PersonData() { Name="K", Surname="Potassium", DateOfBirth=DateTime.Now}},
+        {"Ca",
+            new PersonData() { Name="Ca", Surname="Calcium", DateOfBirth=DateTime.Now}},
+        {"Sc",
+            new PersonData() { Name="Sc", Surname="Scandium", DateOfBirth=DateTime.Now}},
+        {"Ti",
+            new PersonData() { Name="Ti", Surname="Titanium", DateOfBirth=DateTime.Now}}
+    };
         }
         static void PrintMenu()
         {
@@ -46,6 +63,7 @@ namespace PopisStanovnistva
             Console.WriteLine("1 - Defaultni ispis stanovnistva");
             Console.WriteLine("2 - Ispis po datumu rođenja uzlazno");
             Console.WriteLine("3 - Ispis po datumu rođenja silazno");
+            Console.WriteLine("0 - Izlaz");
             Console.WriteLine();
         }
         static void PrintPopulaceEditingChoices()
@@ -54,6 +72,7 @@ namespace PopisStanovnistva
             Console.WriteLine("1 - OIB");
             Console.WriteLine("2 - Ime i prezime");
             Console.WriteLine("3 - Datum rođenja");
+            Console.WriteLine("0 - Izlaz");
             Console.WriteLine();
         }
         static void PrintPopulaceStatisticsChoices()
@@ -62,11 +81,22 @@ namespace PopisStanovnistva
             Console.WriteLine("1 - Ispis postotka zaposlenih i nezaposlenih");
             Console.WriteLine("2 - Ispis najčešćeg imena i koliko ljudi ga dijeli");
             Console.WriteLine("3 - Ispis najčešćeg prezimena i koliko ga stanovnika dijeli");
-            Console.WriteLine("4 - Ispis broja ljudi po godišnjim dobima");
-            Console.WriteLine("5 - Ispis najmlađeg stanovnika");
-            Console.WriteLine("6 - Ispis najstarijeg stanovnika");
-            Console.WriteLine("7 - Prosječan broj godina");
-            Console.WriteLine("8 - Medijan godina");
+            Console.WriteLine("4 - Ispis datuma na koji je rođeno najviše ljudi i koji je to broj");
+            Console.WriteLine("5 - Ispis broja ljudi po godišnjim dobima");
+            Console.WriteLine("6 - Ispis najmlađeg stanovnika");
+            Console.WriteLine("7 - Ispis najstarijeg stanovnika");
+            Console.WriteLine("8 - Prosječan broj godina");
+            Console.WriteLine("9 - Medijan godina");
+            Console.WriteLine("0 - Izlaz");
+            Console.WriteLine();
+        }
+        static void PrintStatisticsChoices()
+        {
+            Console.WriteLine("Odaberi kako sortiramo stanovnike: ");
+            Console.WriteLine("1 - Preko prezimena");
+            Console.WriteLine("2 - Preko datuma rođenja");
+            Console.WriteLine("3 - Preko datuma rođenja obrnuti redosljed");
+            Console.WriteLine("0 - Izlaz");
             Console.WriteLine();
         }
         static int? UserIntInput(string textForUser)
@@ -87,13 +117,12 @@ namespace PopisStanovnistva
             return userNumberInput;
         }
 
-        static void Mainfunction(List<Dictionary<string, (string, string, DateTime)>> populace)
+        static bool Mainfunction(bool exitedSubMenu, Dictionary<string, PersonData> populace)
             {
                 int? userNumberInput;
                 string oib;
                 PrintMenu();
                 userNumberInput = UserIntInput("Vaš izbor: ");
-
                 switch (userNumberInput)
                 {
                     case 1:
@@ -109,6 +138,9 @@ namespace PopisStanovnistva
                                 break;
                             case 3:
                                 PrintPopulaceBySurnameDescending(populace);
+                                break;
+                            case 0:
+                                exitedSubMenu = true;
                                 break;
                             default:
                                 Console.WriteLine("Nepostojeći izbor!");
@@ -156,7 +188,10 @@ namespace PopisStanovnistva
                             case 3:
                                 EditDateOfBirth(oib);
                                 break;
-                            default:
+                        case 0:
+                            exitedSubMenu = true;
+                            break;
+                        default:
                                 Console.WriteLine("Nepostojeći izbor!");
                                 break;
                         }
@@ -193,19 +228,43 @@ namespace PopisStanovnistva
                             case 9:
                                 StatisticsOfAgeMedian(populace);
                                 break;
+                            case 0:
+                                exitedSubMenu = true;
+                                break;
                             default:
                                 Console.WriteLine("Nepostojeći izbor!");
                                 break;
                         }
                         break;
                     case 10:
-                        populace.sort();
+                        PrintStatisticsChoices();
+                        userNumberInput = UserIntInput("Vaš izbor: ");
+                        switch (userNumberInput)
+                        {
+                           case 1:
+                                SortPopulaceBySurname(populace);
+                                break;
+                           case 2:
+                                SortPopulaceByDateOfBirth(populace);
+                                break;
+                           case 3:
+                                SortPopulaceByDateOfBirthDescending(populace);
+                                break;
+                           case 0:
+                                exitedSubMenu = true;
+                                break;
+                           default:
+                                Console.WriteLine("Nepostojeći izbor!");
+                                break;
+                        }
                         break;
                     case 0:
+                        break;
                     default:
                         Console.WriteLine("Nepostojeći izbor!");
                         break;
                 }
+                return exitedSubMenu;
             }
         }
     }
