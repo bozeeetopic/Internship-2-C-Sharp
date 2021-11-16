@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace PopisStanovnistva
 {
@@ -6,11 +7,90 @@ namespace PopisStanovnistva
     {
         static void Main(string[] args)
         {
-            string inputToContinue = "da";
-            int? userNumberInput;
-            var populace;
+            List<Dictionary<string, (string, string, DateTime)>> populace = new List<Dictionary<string, (string, string, DateTime)>>();
+            PopulatePopulace(populace);
+            string inputToContinue;
             do
             {
+                Mainfunction(populace);
+                Console.Write("Želite li još nešto napraviti? ");
+                inputToContinue = Console.ReadLine();
+            }
+            while (inputToContinue == "da");
+        }
+
+        static void PopulatePopulace(List<Dictionary<string, (string, string, DateTime)>> populace)
+        {
+            var touple = (name: "", surname: "", dateOfBirth: DateTime.Now);
+            populace.Add(new Dictionary<string, (string, string, DateTime)> {"oib",touple});
+        }
+        static void PrintMenu()
+        {
+            Console.WriteLine("Odaberite akciju:");
+            Console.WriteLine("1 - Ispis stanovnistva");
+            Console.WriteLine("2 - Ispis stanovnistva po OIB-u");
+            Console.WriteLine("3 - Ispis OIB-a po unosu imena i prezimena");
+            Console.WriteLine("4 - Unos novog stanovnika");
+            Console.WriteLine("5 - Brisanje stanovnika po OIB-u");
+            Console.WriteLine("6 - Brisanje stanovnika po imenu, prezimenu te datumu rodenja");
+            Console.WriteLine("7 - Brisanje svih stanovnika");
+            Console.WriteLine("8 - Uredivanje stanovnika");
+            Console.WriteLine("9 - Statistika");
+            Console.WriteLine("10 - Sortiranje stanovnika");
+            Console.WriteLine("0 - Izlaz");
+            Console.WriteLine();
+        }
+        static void PrintPopulacePrintChoices()
+        {
+            Console.WriteLine("Odaberi način ispisa stanovništva: ");
+            Console.WriteLine("1 - Defaultni ispis stanovnistva");
+            Console.WriteLine("2 - Ispis po datumu rođenja uzlazno");
+            Console.WriteLine("3 - Ispis po datumu rođenja silazno");
+            Console.WriteLine();
+        }
+        static void PrintPopulaceEditingChoices()
+        {
+            Console.WriteLine("Odaberi što mijenjamo kod stanovnika: ");
+            Console.WriteLine("1 - OIB");
+            Console.WriteLine("2 - Ime i prezime");
+            Console.WriteLine("3 - Datum rođenja");
+            Console.WriteLine();
+        }
+        static void PrintPopulaceStatisticsChoices()
+        {
+            Console.WriteLine("Odaberite akciju:");
+            Console.WriteLine("1 - Ispis postotka zaposlenih i nezaposlenih");
+            Console.WriteLine("2 - Ispis najčešćeg imena i koliko ljudi ga dijeli");
+            Console.WriteLine("3 - Ispis najčešćeg prezimena i koliko ga stanovnika dijeli");
+            Console.WriteLine("4 - Ispis broja ljudi po godišnjim dobima");
+            Console.WriteLine("5 - Ispis najmlađeg stanovnika");
+            Console.WriteLine("6 - Ispis najstarijeg stanovnika");
+            Console.WriteLine("7 - Prosječan broj godina");
+            Console.WriteLine("8 - Medijan godina");
+            Console.WriteLine();
+        }
+        static int? UserIntInput(string textForUser)
+        {
+            int? userNumberInput;
+            do
+            {
+                Console.Write(textForUser);
+
+                try { userNumberInput = int.Parse(Console.ReadLine()); }
+                catch
+                {
+                    userNumberInput = null;
+                    Console.WriteLine("Pogrešan unos!! Traži se isključivo unos broja!");
+                }
+            }
+            while (userNumberInput is null);
+            return userNumberInput;
+        }
+
+        static void Mainfunction(List<Dictionary<string, (string, string, DateTime)>> populace)
+            {
+                int? userNumberInput;
+                string oib;
                 PrintMenu();
                 userNumberInput = UserIntInput("Vaš izbor: ");
 
@@ -22,13 +102,13 @@ namespace PopisStanovnistva
                         switch (userNumberInput)
                         {
                             case 1:
-                                PrintPopulaceDefault();
+                                PrintPopulaceDefault(populace);
                                 break;
                             case 2:
-                                PrintPopulaceBySurname();
+                                PrintPopulaceBySurname(populace);
                                 break;
                             case 3:
-                                PrintPopulaceBySurnameDescending();
+                                PrintPopulaceBySurnameDescending(populace);
                                 break;
                             default:
                                 Console.WriteLine("Nepostojeći izbor!");
@@ -36,8 +116,8 @@ namespace PopisStanovnistva
                         }
                         break;
                     case 2:
-                        var searchedOib = UserOibInput();
-                        PrintPersonByOIB(searchedOib);
+                        oib = UserOibInput();
+                        PrintPersonByOIB(oib);
                         break;
                     case 3:
                         var personToPrint = UserNameAndSurnameInput();
@@ -45,13 +125,13 @@ namespace PopisStanovnistva
                         break;
                     case 4:
                         var person = UserNameAndSurnameInput();
-                        var inputedOib = UserOibInput();
+                        oib = UserOibInput();
                         var personWithOib = nesto;
-                        if(nepostoji)
-                        populace.Add(personWithOib);
+                        if (nepostoji)
+                            populace.Add(personWithOib);
                         break;
                     case 5:
-                        var OibToErase = UserOibInput();
+                        oib = UserOibInput();
                         ErasePersonByOib(OibToErase);
                         break;
                     case 6:
@@ -64,17 +144,17 @@ namespace PopisStanovnistva
                     case 8:
                         PrintPopulaceEditingChoices();
                         userNumberInput = UserIntInput("Vaš izbor: ");
-                        var OibToEdit = UserOibInput();
+                        oib = UserOibInput();
                         switch (userNumberInput)
                         {
                             case 1:
-                                EditOib(OibToEdit);
+                                EditOib(oib);
                                 break;
                             case 2:
-                                EditNameAndSurname(OibToEdit);
+                                EditNameAndSurname(oib);
                                 break;
                             case 3:
-                                EditDateOfBirth(OibToEdit);
+                                EditDateOfBirth(oib);
                                 break;
                             default:
                                 Console.WriteLine("Nepostojeći izbor!");
@@ -126,73 +206,6 @@ namespace PopisStanovnistva
                         Console.WriteLine("Nepostojeći izbor!");
                         break;
                 }
-                Console.Write("Želite li još nešto napraviti? ");
-                inputToContinue = Console.ReadLine();
             }
-            while (inputToContinue == "da");
-        }
-        static void PrintMenu()
-        {
-            Console.WriteLine("Odaberite akciju:");
-            Console.WriteLine("1 - Ispis stanovnistva");
-            Console.WriteLine("2 - Ispis stanovnistva po OIB-u");
-            Console.WriteLine("3 - Ispis OIB-a po unosu imena i prezimena");
-            Console.WriteLine("4 - Unos novog stanovnika");
-            Console.WriteLine("5 - Brisanje stanovnika po OIB-u");
-            Console.WriteLine("6 - Brisanje stanovnika po imenu, prezimenu te datumu rodenja");
-            Console.WriteLine("7 - Brisanje svih stanovnika");
-            Console.WriteLine("8 - Uredivanje stanovnika");
-            Console.WriteLine("9 - Statistika");
-            Console.WriteLine("10 - Sortiranje stanovnika");
-            Console.WriteLine("0 - Izlaz");
-            Console.WriteLine();
-        }
-        static void PrintPopulacePrintChoices()
-        {
-            Console.WriteLine("Odaberi način ispisa stanovništva: ");
-            Console.WriteLine("1 - Defaultni ispis stanovnistva");
-            Console.WriteLine("2 - Ispis po datumu rođenja uzlazno");
-            Console.WriteLine("3 - Ispis po datumu rođenja silazno");
-            Console.WriteLine();
-        }
-
-        static void PrintPopulaceEditingChoices()
-        {
-            Console.WriteLine("Odaberi što mijenjamo kod stanovnika: ");
-            Console.WriteLine("1 - OIB");
-            Console.WriteLine("2 - Ime i prezime");
-            Console.WriteLine("3 - Datum rođenja");
-            Console.WriteLine();
-        }
-        static void PrintPopulaceStatisticsChoices()
-        {
-            Console.WriteLine("Odaberite akciju:");
-            Console.WriteLine("1 - Ispis postotka zaposlenih i nezaposlenih");
-            Console.WriteLine("2 - Ispis najčešćeg imena i koliko ljudi ga dijeli");
-            Console.WriteLine("3 - Ispis najčešćeg prezimena i koliko ga stanovnika dijeli");
-            Console.WriteLine("4 - Ispis broja ljudi po godišnjim dobima");
-            Console.WriteLine("5 - Ispis najmlađeg stanovnika");
-            Console.WriteLine("6 - Ispis najstarijeg stanovnika");
-            Console.WriteLine("7 - Prosječan broj godina");
-            Console.WriteLine("8 - Medijan godina");
-            Console.WriteLine(); 
-        }
-        static int? UserIntInput(string textForUser)
-        {
-            int? userNumberInput;
-            do
-            {
-                Console.Write(textForUser);
-
-                try { userNumberInput = int.Parse(Console.ReadLine()); }
-                catch
-                {
-                    userNumberInput = null;
-                    Console.WriteLine("Pogrešan unos!! Traži se isključivo unos broja!");
-                }
-            }
-            while (userNumberInput is null);
-            return userNumberInput;
         }
     }
-}
