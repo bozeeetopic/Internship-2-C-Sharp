@@ -5,8 +5,7 @@ namespace PopisStanovnistva
 {
     public class PersonData
     {
-        public string Name { get; set; }
-        public string Surname { get; set; }
+        public string NameAndSurname{ get; set; }
         public DateTime DateOfBirth { get; set; }
     }
     class Program
@@ -32,14 +31,171 @@ namespace PopisStanovnistva
             return new Dictionary<string, PersonData>
     {
         {"K",
-            new PersonData() { Name="K", Surname="Potassium", DateOfBirth=DateTime.Now}},
+            new PersonData() { NameAndSurname="Potassium", DateOfBirth=DateTime.Now}},
         {"Ca",
-            new PersonData() { Name="Ca", Surname="Calcium", DateOfBirth=DateTime.Now}},
+            new PersonData() { NameAndSurname="Calcium", DateOfBirth=DateTime.Now}},
         {"Sc",
-            new PersonData() { Name="Sc", Surname="Scandium", DateOfBirth=DateTime.Now}},
+            new PersonData() { NameAndSurname="Scandium", DateOfBirth=DateTime.Now}},
         {"Ti",
-            new PersonData() { Name="Ti", Surname="Titanium", DateOfBirth=DateTime.Now}}
+            new PersonData() { NameAndSurname="Titanium", DateOfBirth=DateTime.Now}}
     };
+        }
+
+
+        static bool Mainfunction(bool exitedSubMenu, Dictionary<string, PersonData> populace)
+        {
+            int? userNumberInput;
+            string oib;
+            PersonData person;
+            PrintMenu();
+            userNumberInput = UserIntInput("Vaš izbor: ");
+            switch (userNumberInput)
+            {
+                case 1:
+                    PrintPopulacePrintChoices();
+                    userNumberInput = UserIntInput("Vaš izbor: ");
+                    switch (userNumberInput)
+                    {
+                        case 1:
+                            PrintPopulaceDefault(populace);
+                            break;
+                        case 2:
+                            PrintPopulaceBySurname(populace);
+                            break;
+                        case 3:
+                            PrintPopulaceBySurnameDescending(populace);
+                            break;
+                        case 0:
+                            exitedSubMenu = true;
+                            break;
+                        default:
+                            Console.WriteLine("Nepostojeći izbor!");
+                            break;
+                    }
+                    break;
+                case 2:
+                    oib = UserOibInput();
+                    PrintPersonByOIB(oib);
+                    break;
+                case 3:
+                    var personToPrint = UserNameAndSurnameInput();
+                    FindPopulaceByNameAndSurname(personToPrint);
+                    break;
+                case 4:
+                    var oibExists= false;
+                    do
+                    {
+                        if (oibExists) Console.WriteLine("Uneseni oib već postoji, pokušajte opet!");
+                        oib = UserOibInput();
+                        oibExists = true;
+                    }
+                    while (populace.ContainsKey(oib));
+                    person = UserNameAndSurnameInput();
+                    populace.Add(oib,person);
+                    break;
+                case 5:
+                    oib = UserOibInput();
+                    ErasePersonByOib(populace, oib);
+                    break;
+                case 6:
+                    person = UserNameAndSurnameInput();
+                    DeletePopulaceByNameAndSurname(populace, person);
+                    break;
+                case 7:
+                    ErasePopulace(populace);
+                    break;
+                case 8:
+                    PrintPopulaceEditingChoices();
+                    userNumberInput = UserIntInput("Vaš izbor: ");
+                    oib = UserOibInput();
+                    switch (userNumberInput)
+                    {
+                        case 1:
+                            EditOib(populace, oib);
+                            break;
+                        case 2:
+                            EditNameAndSurname(populace, oib);
+                            break;
+                        case 3:
+                            EditDateOfBirth(populace, oib);
+                            break;
+                        case 0:
+                            exitedSubMenu = true;
+                            break;
+                        default:
+                            Console.WriteLine("Nepostojeći izbor!");
+                            break;
+                    }
+                    break;
+                case 9:
+                    PrintPopulaceStatisticsChoices();
+                    userNumberInput = UserIntInput("Vaš izbor: ");
+                    switch (userNumberInput)
+                    {
+                        case 1:
+                            StatisticsOfUnemployedAndEmployed(populace);
+                            break;
+                        case 2:
+                            StatisticsOfNames(populace);
+                            break;
+                        case 3:
+                            StatisticsOfSurnames(populace);
+                            break;
+                        case 4:
+                            StatisticsOfDates(populace);
+                            break;
+                        case 5:
+                            StatisticsOfSeasons(populace);
+                            break;
+                        case 6:
+                            StatisticsOfYoungestPerson(populace);
+                            break;
+                        case 7:
+                            StatisticsOfOldestPerson(populace);
+                            break;
+                        case 8:
+                            StatisticsOfAgeAverage(populace);
+                            break;
+                        case 9:
+                            StatisticsOfAgeMedian(populace);
+                            break;
+                        case 0:
+                            exitedSubMenu = true;
+                            break;
+                        default:
+                            Console.WriteLine("Nepostojeći izbor!");
+                            break;
+                    }
+                    break;
+                case 10:
+                    PrintStatisticsChoices();
+                    userNumberInput = UserIntInput("Vaš izbor: ");
+                    switch (userNumberInput)
+                    {
+                        case 1:
+                            SortPopulaceBySurname(populace);
+                            break;
+                        case 2:
+                            SortPopulaceByDateOfBirth(populace);
+                            break;
+                        case 3:
+                            SortPopulaceByDateOfBirthDescending(populace);
+                            break;
+                        case 0:
+                            exitedSubMenu = true;
+                            break;
+                        default:
+                            Console.WriteLine("Nepostojeći izbor!");
+                            break;
+                    }
+                    break;
+                case 0:
+                    break;
+                default:
+                    Console.WriteLine("Nepostojeći izbor!");
+                    break;
+            }
+            return exitedSubMenu;
         }
         static void PrintMenu()
         {
@@ -117,154 +273,38 @@ namespace PopisStanovnistva
             return userNumberInput;
         }
 
-        static bool Mainfunction(bool exitedSubMenu, Dictionary<string, PersonData> populace)
-            {
-                int? userNumberInput;
-                string oib;
-                PrintMenu();
-                userNumberInput = UserIntInput("Vaš izbor: ");
-                switch (userNumberInput)
-                {
-                    case 1:
-                        PrintPopulacePrintChoices();
-                        userNumberInput = UserIntInput("Vaš izbor: ");
-                        switch (userNumberInput)
-                        {
-                            case 1:
-                                PrintPopulaceDefault(populace);
-                                break;
-                            case 2:
-                                PrintPopulaceBySurname(populace);
-                                break;
-                            case 3:
-                                PrintPopulaceBySurnameDescending(populace);
-                                break;
-                            case 0:
-                                exitedSubMenu = true;
-                                break;
-                            default:
-                                Console.WriteLine("Nepostojeći izbor!");
-                                break;
-                        }
-                        break;
-                    case 2:
-                        oib = UserOibInput();
-                        PrintPersonByOIB(oib);
-                        break;
-                    case 3:
-                        var personToPrint = UserNameAndSurnameInput();
-                        FindPopulaceByNameAndSurname(person);
-                        break;
-                    case 4:
-                        var person = UserNameAndSurnameInput();
-                        oib = UserOibInput();
-                        var personWithOib = nesto;
-                        if (nepostoji)
-                            populace.Add(personWithOib);
-                        break;
-                    case 5:
-                        oib = UserOibInput();
-                        ErasePersonByOib(OibToErase);
-                        break;
-                    case 6:
-                        var personToDelete = UserNameAndSurnameInput();
-                        DeletePopulaceByNameAndSurname(person);
-                        break;
-                    case 7:
-                        ErasePopulace();
-                        break;
-                    case 8:
-                        PrintPopulaceEditingChoices();
-                        userNumberInput = UserIntInput("Vaš izbor: ");
-                        oib = UserOibInput();
-                        switch (userNumberInput)
-                        {
-                            case 1:
-                                EditOib(oib);
-                                break;
-                            case 2:
-                                EditNameAndSurname(oib);
-                                break;
-                            case 3:
-                                EditDateOfBirth(oib);
-                                break;
-                        case 0:
-                            exitedSubMenu = true;
-                            break;
-                        default:
-                                Console.WriteLine("Nepostojeći izbor!");
-                                break;
-                        }
-                        break;
-                    case 9:
-                        PrintPopulaceStatisticsChoices();
-                        userNumberInput = UserIntInput("Vaš izbor: ");
-                        switch (userNumberInput)
-                        {
-                            case 1:
-                                StatisticsOfUnemployedAndEmployed(populace);
-                                break;
-                            case 2:
-                                StatisticsOfNames(populace);
-                                break;
-                            case 3:
-                                StatisticsOfSurnames(populace);
-                                break;
-                            case 4:
-                                StatisticsOfDates(populace);
-                                break;
-                            case 5:
-                                StatisticsOfSeasons(populace);
-                                break;
-                            case 6:
-                                StatisticsOfYoungestPerson(populace);
-                                break;
-                            case 7:
-                                StatisticsOfOldestPerson(populace);
-                                break;
-                            case 8:
-                                StatisticsOfAgeAverage(populace);
-                                break;
-                            case 9:
-                                StatisticsOfAgeMedian(populace);
-                                break;
-                            case 0:
-                                exitedSubMenu = true;
-                                break;
-                            default:
-                                Console.WriteLine("Nepostojeći izbor!");
-                                break;
-                        }
-                        break;
-                    case 10:
-                        PrintStatisticsChoices();
-                        userNumberInput = UserIntInput("Vaš izbor: ");
-                        switch (userNumberInput)
-                        {
-                           case 1:
-                                SortPopulaceBySurname(populace);
-                                break;
-                           case 2:
-                                SortPopulaceByDateOfBirth(populace);
-                                break;
-                           case 3:
-                                SortPopulaceByDateOfBirthDescending(populace);
-                                break;
-                           case 0:
-                                exitedSubMenu = true;
-                                break;
-                           default:
-                                Console.WriteLine("Nepostojeći izbor!");
-                                break;
-                        }
-                        break;
-                    case 0:
-                        break;
-                    default:
-                        Console.WriteLine("Nepostojeći izbor!");
-                        break;
-                }
-                return exitedSubMenu;
-            }
+
+
+        static void PrintPopulaceDefault(Dictionary<string, PersonData> populace) { }
+        static void PrintPopulaceBySurname(Dictionary<string, PersonData> populace) { }
+        static void PrintPopulaceBySurnameDescending(Dictionary<string, PersonData> populace) { }
+        static void FindPopulaceByNameAndSurname(PersonData person) { }
+        static string UserOibInput()
+        {
+            return "";
         }
+        static void PrintPersonByOIB(string oib)
+        {
+
+        }
+        static PersonData UserNameAndSurnameInput() { return new PersonData(); }
+        static void ErasePersonByOib(Dictionary<string, PersonData> populace, string oib) { }
+        static void DeletePopulaceByNameAndSurname(Dictionary<string, PersonData> populace, PersonData person) { }
+        static void ErasePopulace(Dictionary<string, PersonData> populace) { }
+        static void EditOib(Dictionary<string, PersonData> populace, string oib) { }
+        static void EditNameAndSurname(Dictionary<string, PersonData> populace, string oib) { }
+        static void EditDateOfBirth(Dictionary<string, PersonData> populace, string oib) { }
+        static void StatisticsOfUnemployedAndEmployed(Dictionary<string, PersonData> populace) { }
+        static void StatisticsOfNames(Dictionary<string, PersonData> populace) { }
+        static void StatisticsOfSurnames(Dictionary<string, PersonData> populace) { }
+        static void StatisticsOfDates(Dictionary<string, PersonData> populace) { }
+        static void StatisticsOfSeasons(Dictionary<string, PersonData> populace) { }
+        static void StatisticsOfYoungestPerson(Dictionary<string, PersonData> populace) { }
+        static void StatisticsOfOldestPerson(Dictionary<string, PersonData> populace) { }
+        static void StatisticsOfAgeAverage(Dictionary<string, PersonData> populace) { }
+        static void StatisticsOfAgeMedian(Dictionary<string, PersonData> populace) { }
+        static void SortPopulaceBySurname(Dictionary<string, PersonData> populace) { }
+        static void SortPopulaceByDateOfBirth(Dictionary<string, PersonData> populace) { }
+        static void SortPopulaceByDateOfBirthDescending(Dictionary<string, PersonData> populace) { }
+    }
     }
