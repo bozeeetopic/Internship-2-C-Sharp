@@ -3,11 +3,6 @@ using System.Collections.Generic;
 
 namespace PopisStanovnistva
 {
-    public class PersonData
-    {
-        public string NameAndSurname{ get; set; }
-        public DateTime DateOfBirth { get; set; }
-    }
     class Program
     {
         static void Main(string[] args)
@@ -16,37 +11,41 @@ namespace PopisStanovnistva
             string inputToContinue;
             do
             {
-                if (Mainfunction(false, populace))
+                if (!Mainfunction(populace))
                 {
                     Console.Write("Želite li još nešto napraviti? ");
                     inputToContinue = Console.ReadLine();
+                    Console.WriteLine();
                 }
                 else inputToContinue = "da";
             }
             while (inputToContinue == "da");
         }
 
-        static Dictionary<string, PersonData> PopulatePopulace()
+        static Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> PopulatePopulace()
         {
-            return new Dictionary<string, PersonData>
-    {
-        {"K",
-            new PersonData() { NameAndSurname="Potassium", DateOfBirth=DateTime.Now}},
-        {"Ca",
-            new PersonData() { NameAndSurname="Calcium", DateOfBirth=DateTime.Now}},
-        {"Sc",
-            new PersonData() { NameAndSurname="Scandium", DateOfBirth=DateTime.Now}},
-        {"Ti",
-            new PersonData() { NameAndSurname="Titanium", DateOfBirth=DateTime.Now}}
-    };
+            return new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>
+            {
+                //ivo sanader je poseban on si je rezervira ovi oib
+            {"1",(nameAndSurname: "Ivo Sanader", dateOfBirth: DateTime.Now )},
+            {"12345678910",(nameAndSurname: "Bože Topić", dateOfBirth: new DateTime(1996, 4, 9, 0, 0, 0) )},
+            {"21345678910",(nameAndSurname: "Michelle Šarić", dateOfBirth: new DateTime(1998, 8, 19, 0, 0, 0))},
+            {"23145678901",(nameAndSurname: "Duje Šarić", dateOfBirth: new DateTime(2008, 8, 8, 0, 0, 0))},
+            {"32145678910",(nameAndSurname: "Davor Meter", dateOfBirth: new DateTime(1900, 9, 9, 0, 0, 0) )},
+            {"12345678901",(nameAndSurname: "Mala Mandarina", dateOfBirth: new DateTime(2000, 6, 1, 0, 0, 0) )},
+            {"20193847264",(nameAndSurname: "Mala Naranča", dateOfBirth: new DateTime(2000, 6, 1, 0, 0, 0) )},
+            {"11111111111",(nameAndSurname: "Njonjo Njonjić", dateOfBirth: new DateTime(1919, 1, 9, 0, 0, 0) )},
+            {"88888888888",(nameAndSurname: "Stipe Mesić", dateOfBirth: new DateTime(1, 1, 1, 0, 0, 0) )}
+            };
         }
 
 
-        static bool Mainfunction(bool exitedSubMenu, Dictionary<string, PersonData> populace)
+        static bool Mainfunction(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
         {
+            var exitedSubMenu = false;
             int? userNumberInput;
             string oib;
-            PersonData person;
+            (string, DateTime) person;
             PrintMenu();
             userNumberInput = UserIntInput("Vaš izbor: ");
             switch (userNumberInput)
@@ -275,10 +274,70 @@ namespace PopisStanovnistva
 
 
 
-        static void PrintPopulaceDefault(Dictionary<string, PersonData> populace) { }
-        static void PrintPopulaceBySurname(Dictionary<string, PersonData> populace) { }
-        static void PrintPopulaceBySurnameDescending(Dictionary<string, PersonData> populace) { }
-        static void FindPopulaceByNameAndSurname(PersonData person) { }
+        static void PrintPopulaceDefault(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            foreach(var item in populace)
+            {
+                Console.WriteLine($"OIB: {item.Key}\t" +
+                    $"Ime i prezime: {item.Value.Item1}\t" +
+                    $"Datum rođenja: {item.Value.Item2}");
+            }
+        }
+        static void PrintPopulaceBySurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var temporaryOib = "";
+            var minDate = DateTime.Now;
+            var sortedPopulace = new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>();
+            foreach (var item in populace)
+            {
+                sortedPopulace.Add(item.Key, (nameAndSurname: item.Value.nameAndSurname, dateOfBirth: item.Value.dateOfBirth));
+            }
+                do
+            {
+                minDate = DateTime.Now;
+                foreach (var item in sortedPopulace)
+                {
+                    if ( DateTime.Compare(minDate,item.Value.dateOfBirth)>=0)
+                    {
+                        temporaryOib = item.Key;
+                        minDate = item.Value.dateOfBirth;
+                    }
+                }
+                Console.WriteLine($"OIB: {temporaryOib}\t" +
+                    $"Ime i prezime: {sortedPopulace.GetValueOrDefault(temporaryOib).nameAndSurname}\t" +
+                    $" Datum rođenja: {sortedPopulace.GetValueOrDefault(temporaryOib).dateOfBirth}");
+                sortedPopulace.Remove(temporaryOib);
+            }
+            while (sortedPopulace.Count >0);
+        }
+        static void PrintPopulaceBySurnameDescending(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var temporaryOib = "";
+            var minDate = new DateTime (1,1,1,0,0,0);
+            var sortedPopulace = new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>();
+            foreach (var item in populace)
+            {
+                sortedPopulace.Add(item.Key, (nameAndSurname: item.Value.nameAndSurname, dateOfBirth: item.Value.dateOfBirth));
+            }
+            do
+            {
+                minDate = new DateTime(1, 1, 1, 0, 0, 0);
+                foreach (var item in sortedPopulace)
+                {
+                    if (DateTime.Compare(minDate, item.Value.dateOfBirth) <= 0)
+                    {
+                        temporaryOib = item.Key;
+                        minDate = item.Value.dateOfBirth;
+                    }
+                }
+                Console.WriteLine($"OIB: {temporaryOib}\t" +
+                    $"Ime i prezime: {sortedPopulace.GetValueOrDefault(temporaryOib).nameAndSurname}\t" +
+                    $" Datum rođenja: {sortedPopulace.GetValueOrDefault(temporaryOib).dateOfBirth}");
+                sortedPopulace.Remove(temporaryOib);
+            }
+            while (sortedPopulace.Count > 0);
+        }
+        static void FindPopulaceByNameAndSurname((string nameAndSurname, DateTime dateOfBirth) person) { }
         static string UserOibInput()
         {
             return "";
@@ -287,24 +346,24 @@ namespace PopisStanovnistva
         {
 
         }
-        static PersonData UserNameAndSurnameInput() { return new PersonData(); }
-        static void ErasePersonByOib(Dictionary<string, PersonData> populace, string oib) { }
-        static void DeletePopulaceByNameAndSurname(Dictionary<string, PersonData> populace, PersonData person) { }
-        static void ErasePopulace(Dictionary<string, PersonData> populace) { }
-        static void EditOib(Dictionary<string, PersonData> populace, string oib) { }
-        static void EditNameAndSurname(Dictionary<string, PersonData> populace, string oib) { }
-        static void EditDateOfBirth(Dictionary<string, PersonData> populace, string oib) { }
-        static void StatisticsOfUnemployedAndEmployed(Dictionary<string, PersonData> populace) { }
-        static void StatisticsOfNames(Dictionary<string, PersonData> populace) { }
-        static void StatisticsOfSurnames(Dictionary<string, PersonData> populace) { }
-        static void StatisticsOfDates(Dictionary<string, PersonData> populace) { }
-        static void StatisticsOfSeasons(Dictionary<string, PersonData> populace) { }
-        static void StatisticsOfYoungestPerson(Dictionary<string, PersonData> populace) { }
-        static void StatisticsOfOldestPerson(Dictionary<string, PersonData> populace) { }
-        static void StatisticsOfAgeAverage(Dictionary<string, PersonData> populace) { }
-        static void StatisticsOfAgeMedian(Dictionary<string, PersonData> populace) { }
-        static void SortPopulaceBySurname(Dictionary<string, PersonData> populace) { }
-        static void SortPopulaceByDateOfBirth(Dictionary<string, PersonData> populace) { }
-        static void SortPopulaceByDateOfBirthDescending(Dictionary<string, PersonData> populace) { }
+        static (string nameAndSurname, DateTime dateOfBirth) UserNameAndSurnameInput() { return ("", DateTime.Now); }
+        static void ErasePersonByOib(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
+        static void DeletePopulaceByNameAndSurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, (string nameAndSurname, DateTime dateOfBirth) person) { }
+        static void ErasePopulace(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void EditOib(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
+        static void EditNameAndSurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
+        static void EditDateOfBirth(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
+        static void StatisticsOfUnemployedAndEmployed(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfNames(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfSurnames(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfDates(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfSeasons(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfYoungestPerson(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfOldestPerson(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfAgeAverage(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfAgeMedian(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void SortPopulaceBySurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void SortPopulaceByDateOfBirth(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void SortPopulaceByDateOfBirthDescending(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
     }
     }
