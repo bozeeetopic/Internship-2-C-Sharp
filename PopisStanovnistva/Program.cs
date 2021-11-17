@@ -19,7 +19,7 @@ namespace PopisStanovnistva
                 }
                 else inputToContinue = "da";
             }
-            while (inputToContinue=="da");
+            while (inputToContinue.Equals("da"));
         }
 
         static Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> PopulatePopulace()
@@ -77,7 +77,7 @@ namespace PopisStanovnistva
                     FindPersonByOIB(populace,oib);
                     break;
                 case 3:
-                    var personToPrint = UserNameAndSurnameInput();
+                    var personToPrint = UserNameSurnameAndDateInput();
                     FindPopulaceByNameAndSurname(populace,personToPrint);
                     break;
                 case 4:
@@ -89,7 +89,7 @@ namespace PopisStanovnistva
                         oibExists = true;
                     }
                     while (populace.ContainsKey(oib));
-                    person = UserNameAndSurnameInput();
+                    person = UserNameSurnameAndDateInput();
                     populace.Add(oib,person);
                     break;
                 case 5:
@@ -97,7 +97,7 @@ namespace PopisStanovnistva
                     ErasePersonByOib(populace, oib);
                     break;
                 case 6:
-                    person = UserNameAndSurnameInput();
+                    person = UserNameSurnameAndDateInput();
                     DeletePopulaceByNameAndSurname(populace, person);
                     break;
                 case 7:
@@ -319,6 +319,8 @@ namespace PopisStanovnistva
             }
             while (sortedPopulace.Count > 0);
         }
+        
+        
         static string UserOibInput()
         {
             var oib = "";
@@ -333,7 +335,7 @@ namespace PopisStanovnistva
             while (oib.Length != 11);
             return oib;
         }
-        static (string nameAndSurname, DateTime dateOfBirth) UserNameAndSurnameInput() 
+        static (string nameAndSurname, DateTime dateOfBirth) UserNameSurnameAndDateInput() 
         {
             var surname = "";
             var name = "";
@@ -393,6 +395,8 @@ namespace PopisStanovnistva
                 return 28;
             }
         }
+        
+        
         static void FindPersonByOIB(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace,string oib)
         {
             if (populace.ContainsKey(oib)) Console.WriteLine("Za traženi oib podatci slijede...\nIme i prezime: "+populace.GetValueOrDefault(oib).nameAndSurname+
@@ -418,6 +422,8 @@ namespace PopisStanovnistva
                     Console.WriteLine("Ne postoji stanovnik sa traženim podatcima!");
             }
         }
+        
+        
         static void ErasePersonByOib(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib)
         {
             var deleteConfirmation = "";
@@ -433,10 +439,39 @@ namespace PopisStanovnistva
             else
                 Console.WriteLine("Ne postoji stanovnik sa traženim oib-om!");
         }
+        static void DeletePopulaceByNameAndSurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, (string nameAndSurname, DateTime dateOfBirth) person)
+        {
+            {
+                if (populace.ContainsValue(person))
+                {
+                    Console.WriteLine("Pronađeni su stanovnici: ");
+                    foreach (var item in populace)
+                    {
+                        if (item.Value.nameAndSurname.Equals(person.nameAndSurname) && (item.Value.dateOfBirth.Equals(person.dateOfBirth)))
+                            Console.WriteLine($"OIB: {item.Key}\t" +
+                            $"Ime i prezime: {item.Value.nameAndSurname}\t" +
+                            $" Datum rođenja: {item.Value.dateOfBirth}");
+                    }
+                    Console.WriteLine("Upišite oib osobe koju želite obrisati: ");
+                    ErasePersonByOib(populace,UserOibInput());
+                }
+                else
+                    Console.WriteLine("Ne postoji stanovnik sa traženim podatcima!");
+            }
+        }
+        static void ErasePopulace(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            Console.Write("Potvrdite sa 'da' brisanje svih stanovnika, u slučaju drugačijeg unosa prekid radnje: ");
+            var deleteConfirmation = Console.ReadLine();
+            if (deleteConfirmation.Equals("da"))
+            {
+                foreach (var item in populace)
+                    populace.Remove(item.Key);
+            }
+        }
 
 
-        static void DeletePopulaceByNameAndSurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, (string nameAndSurname, DateTime dateOfBirth) person) { }
-        static void ErasePopulace(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+
         static void EditOib(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
         static void EditNameAndSurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
         static void EditDateOfBirth(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
