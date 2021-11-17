@@ -23,6 +23,7 @@ namespace PopisStanovnistva
             while (inputToContinue.Equals("da"));
         }
 
+
         static Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> PopulatePopulace()
         {
             return new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>
@@ -39,8 +40,6 @@ namespace PopisStanovnistva
             {"88888888888",(nameAndSurname: "Stipe Mesić", dateOfBirth: new DateTime(1, 1, 1, 0, 0, 0) )}
             };
         }
-
-
         static bool Mainfunction(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
         {
             var exitedSubMenu = false;
@@ -176,10 +175,10 @@ namespace PopisStanovnistva
                             SortPopulaceBySurname(populace);
                             break;
                         case 2:
-                            SortPopulaceByDateOfBirth(populace);
+                            SortPopulaceByDate(populace,SortDatesUp);
                             break;
                         case 3:
-                            SortPopulaceByDateOfBirthDescending(populace);
+                            SortPopulaceByDate(populace, SortDatesDown);
                             break;
                         case 0:
                             exitedSubMenu = true;
@@ -198,6 +197,9 @@ namespace PopisStanovnistva
             Console.WriteLine();
             return exitedSubMenu;
         }
+
+
+
         static void PrintMenu()
         {
             Console.WriteLine("Odaberite akciju:");
@@ -258,6 +260,7 @@ namespace PopisStanovnistva
         }
 
 
+
         static void Red(string input)
         {
             Console.ForegroundColor = ConsoleColor.Red;
@@ -266,11 +269,9 @@ namespace PopisStanovnistva
         }
         static void Black(string input)
         {
-            Console.ForegroundColor = ConsoleColor.Black;
-            Console.BackgroundColor = ConsoleColor.DarkGray;
+            Console.ForegroundColor = ConsoleColor.Blue;
             Console.Write(input);
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.BackgroundColor = default;
         }
         static void Green(string input)
         {
@@ -297,6 +298,7 @@ namespace PopisStanovnistva
             colorPrint(dateOfBirth.ToString());
             Console.WriteLine();
         }
+
 
 
         static void PrintPopulaceDefault(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
@@ -358,6 +360,7 @@ namespace PopisStanovnistva
         }
         
         
+
         static bool StringContainsString(string  a,string b)
         {
             foreach(var character in b)
@@ -444,6 +447,7 @@ namespace PopisStanovnistva
         }
         
         
+
         static void FindPersonByOIB(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace,string oib)
         {
             if (populace.ContainsKey(oib)) Console.WriteLine("Za traženi oib podatci slijede...\nIme i prezime: "+populace.GetValueOrDefault(oib).nameAndSurname+
@@ -471,6 +475,7 @@ namespace PopisStanovnistva
         }
         
         
+
         static void ErasePersonByOib(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib)
         {
             var deleteConfirmation = "";
@@ -516,6 +521,7 @@ namespace PopisStanovnistva
                     populace.Remove(item.Key);
             }
         }
+
 
 
 
@@ -566,9 +572,9 @@ namespace PopisStanovnistva
             {
                 Console.WriteLine("Za traženi oib datum rođenja je: " + populace.GetValueOrDefault(oib).dateOfBirth);
                 int year, month, day;
-                year = NumberInput("godinu", 1, 2021);
-                month = NumberInput("mjesec", 1, 12);
-                day = NumberInput("dan", 1, DaysInMonth(month, year));
+                year = NumberInput("godinu", 1, 2022);
+                month = NumberInput("mjesec", 1, 13);
+                day = NumberInput("dan", 1, DaysInMonth(month, year)+1);
                 Console.Write("Potvrdite sa 'da' zamjenu datuma rođenja stanovnika: " + populace.GetValueOrDefault(oib).dateOfBirth + " -> " + year + "/" + month + "/" + day+"/0/0/0.");
                 if (Console.ReadLine().Equals("da"))
                 {
@@ -578,6 +584,7 @@ namespace PopisStanovnistva
             else
                 Console.WriteLine("Ne postoji stanovnik sa traženim oib-om!");
         }
+
 
 
         static void StatisticsOfUnemployedAndEmployed(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
@@ -595,11 +602,11 @@ namespace PopisStanovnistva
                     deadCount++;
             }
 
-            Console.Write("Unemployed: ");
+            Console.Write("Nezaposleni: ");
             Red((int)(unemployedCount/populace.Count*100)+"");
-            Console.Write("%\tEmployed: ");
+            Console.Write("%\tZaposleni: ");
             Green((int)(employedCount / populace.Count * 100) +"");
-            Console.Write("%\tDead: ");
+            Console.Write("%\tUmrli(trebali bi bit): ");
             Black((int)(deadCount / populace.Count * 100) + "");
             Console.WriteLine("%");
         }
@@ -692,71 +699,75 @@ namespace PopisStanovnistva
         static void StatisticsOfSeasons(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
         {
             var counters = new Dictionary<string, int> { };
-            counters.Add("Spring", 0);
-            counters.Add("Summer", 0);
-            counters.Add("Autumn", 0);
-            counters.Add("Winter", 0);
-            var tempCounter = 0;
+            counters.Add("Proljeće", 0);
+            counters.Add("Ljeto", 0);
+            counters.Add("Jesen", 0);
+            counters.Add("Zima", 0);
+
 
             foreach (var person in populace)
             {
                 if (new List<int>() { 4, 5 }.Contains(person.Value.dateOfBirth.Month))
                 {
-                    counters["Spring"]++;
+                    counters["Proljeće"]++;
                 }
                 else if (new List<int>() { 7, 8 }.Contains(person.Value.dateOfBirth.Month))
                 {
-                    counters["Summer"]++;
+                    counters["Ljeto"]++;
                 }
                 else if (new List<int>() { 10, 11 }.Contains(person.Value.dateOfBirth.Month))
                 {
-                    counters["Autumn"]++;
+                    counters["Jesen"]++;
                 }
                 else if (new List<int>() { 1, 2 }.Contains(person.Value.dateOfBirth.Month))
                 {
-                    counters["Winter"]++;
+                    counters["Zima"]++;
                 }
                 else if (person.Value.dateOfBirth.Month==12)
                 {
                     if(person.Value.dateOfBirth.Day<21)
-                        counters["Autumn"]++;
+                        counters["Jesen"]++;
                     else
-                        counters["Winter"]++;
+                        counters["Zima"]++;
                 }
                 else if (person.Value.dateOfBirth.Month == 3)
                 {
                     if (person.Value.dateOfBirth.Day < 21)
-                        counters["Winter"]++;
+                        counters["Zima"]++;
                     else
-                        counters["Spring"]++;
+                        counters["Proljeće"]++;
                 }
                 else if (person.Value.dateOfBirth.Month == 6)
                 {
                     if (person.Value.dateOfBirth.Day < 21)
-                        counters["Spring"]++;
+                        counters["Proljeće"]++;
                     else
-                        counters["Summer"]++;
+                        counters["Ljeto"]++;
                 }
                 else if (person.Value.dateOfBirth.Month == 9)
                 {
                     if (person.Value.dateOfBirth.Day < 23)
-                        counters["Summer"]++;
+                        counters["Ljeto"]++;
                     else
-                        counters["Autumn"]++;
+                        counters["Jesen"]++;
                 }
             }
-            foreach (var counter in counters)
+            var list = new List<int>();
+            foreach(var season in counters)
             {
-                if (counter.Value > tempCounter)
-                    tempCounter = counter.Value;
-            }
-            Console.Write("Sezona sa najviše rođenih: ");
-            foreach (var counter in counters)
-            {
-                if (counter.Value == tempCounter)
+                if (!list.Contains(season.Value))
                 {
-                    Console.WriteLine(counter.Key + ":\t" + counter.Value);
-                    return;
+                    list.Add(season.Value);
+                }
+            }
+            list.Sort();
+            Console.WriteLine("Broj rođenih po sezonama: ");
+            foreach (var numberOfPeople in list) 
+            {
+                foreach (var season in counters)
+                {
+                    if(numberOfPeople==season.Value)
+                        Console.WriteLine(season.Key + ":\t" + season.Value);
                 }
             }
         }
@@ -766,7 +777,7 @@ namespace PopisStanovnistva
             var tempOib = "";
             foreach(var person in populace)
             {
-                if (person.Value.dateOfBirth.CompareTo(tempDate) > 1)
+                if (person.Value.dateOfBirth.CompareTo(tempDate) >= 1)
                 {
                     tempDate = person.Value.dateOfBirth;
                     tempOib = person.Key;
@@ -774,7 +785,7 @@ namespace PopisStanovnistva
             }
             Console.WriteLine("Najmlađi stanovnik je: ");
             Console.Write("OIB: "+tempOib);
-            Console.Write("\tIme i prezime: "+populace[tempOib].nameAndSurname);
+            Console.Write("\tIme i prezime: "+ populace[tempOib].nameAndSurname);
             Console.Write("\tDatum rođenja: "+ populace[tempOib].dateOfBirth);
             Console.WriteLine();
         }
@@ -784,7 +795,7 @@ namespace PopisStanovnistva
             var tempOib = "";
             foreach (var person in populace)
             {
-                if (person.Value.dateOfBirth.CompareTo(tempDate) < 1)
+                if (person.Value.dateOfBirth.CompareTo(tempDate) <= 1)
                 {
                     tempDate = person.Value.dateOfBirth;
                     tempOib = person.Key;
@@ -802,6 +813,7 @@ namespace PopisStanovnistva
             foreach(var person in populace)
             {
                 sum += DateTime.Now.Subtract(person.Value.dateOfBirth).Days;
+                Console.WriteLine(sum);
             }
             Console.WriteLine("Prosječna dob je: "+ (int)(sum/populace.Count));
         }
@@ -820,12 +832,12 @@ namespace PopisStanovnistva
             {
                 foreach (var person in discardablePopulace)
                 {
-                    if (person.Value.dateOfBirth.CompareTo(tempMinDate) > 1)
+                    if (person.Value.dateOfBirth.CompareTo(tempMinDate) >= 1)
                     {
                         tempMinDate = person.Value.dateOfBirth;
                         tempMinOib = person.Key;
                     }
-                    if (person.Value.dateOfBirth.CompareTo(tempMaxDate) < 1)
+                    if (person.Value.dateOfBirth.CompareTo(tempMaxDate) <= 1)
                     {
                         tempMaxDate = person.Value.dateOfBirth;
                         tempMaxOib = person.Key;
@@ -866,10 +878,12 @@ namespace PopisStanovnistva
         }
 
 
+
         static void SortPopulaceBySurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
         {
             var newList = new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>();
             var surnames = new List<string>();
+            var tempVar = "";
             foreach (var person in populace)
             {
                 var surname = person.Value.nameAndSurname.Substring(person.Value.nameAndSurname.IndexOf(" "));
@@ -878,12 +892,25 @@ namespace PopisStanovnistva
                     surnames.Add(surname);
                 }
             }
-            surnames.Sort();
-            foreach (var surname in surnames)
+            tempVar = surnames[0];
+            for(var i = 0; i < surnames.Count-1; i++)
+              {
+                  for(var j= i+1;j< surnames.Count; j++)
+                  {
+                      if (surnames[i].CompareTo(surnames[j]) >= 0)
+                      {
+                          tempVar = surnames[j];
+                          surnames[j] = surnames[i];
+                          surnames[i] = tempVar;
+                      }
+                  }
+              }
+            //surnames.Sort();
+            foreach (var item in surnames)
             {
                 foreach (var person in populace)
                 {
-                    if (person.Value.nameAndSurname.Substring(person.Value.nameAndSurname.IndexOf(" "))==surname)
+                    if (person.Value.nameAndSurname.Substring(person.Value.nameAndSurname.IndexOf(" "))== item)
                     {
                         newList.Add(person.Key, person.Value);
                         populace.Remove(person.Key);
@@ -892,12 +919,13 @@ namespace PopisStanovnistva
             }
             foreach (var person in newList)
             {
+                    Console.WriteLine(person.Value.nameAndSurname);
                     populace.Add(person.Key, person.Value);
                     newList.Remove(person.Key);
             }
 
         }
-        static void SortPopulaceByDateOfBirth(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        static void SortPopulaceByDate(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, Action<List<DateTime>> funkcija)
         {
             var newList = new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>();
             var dates = new List<DateTime>();
@@ -909,7 +937,11 @@ namespace PopisStanovnistva
                     dates.Add(date);
                 }
             }
-            dates.Sort();
+            foreach (var date in dates)
+                Console.WriteLine(date);
+            funkcija(dates);
+            foreach (var date in dates)
+                Console.WriteLine();
             foreach (var date in dates)
             {
                 foreach (var person in populace)
@@ -928,37 +960,44 @@ namespace PopisStanovnistva
             }
 
         }
-        static void SortPopulaceByDateOfBirthDescending(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        static void SortDatesUp(List<DateTime> list)
         {
-            var newList = new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>();
-            var dates = new List<DateTime>();
-            foreach (var person in populace)
+            var newList = new List<DateTime>();
+            var min = new DateTime(1, 1, 1, 0, 0, 0);
+            do
             {
-                var date = person.Value.dateOfBirth;
-                if (!dates.Contains(date))
+                min = new DateTime(1, 1, 1, 0, 0, 0);
+                foreach (var date in list)
                 {
-                    dates.Add(date);
+                    if (date.CompareTo(min) >= 1)
+                        min = date;
                 }
-            }
-            dates.Sort();
-            dates.Reverse();
-            foreach (var date in dates)
+                newList.Add(min);
+                list.Remove(min);
+            } while (list.Count > 0);
+            foreach (var i in newList)
+                list.Add(i);
+        }
+        static void SortDatesDown(List<DateTime> list)
+        {
+            var newList = new List<DateTime>();
+            var max = DateTime.Now;
+            do
             {
-                foreach (var person in populace)
+                max = DateTime.Now;
+                foreach (var date in list)
                 {
-                    if (person.Value.dateOfBirth == date)
-                    {
-                        newList.Add(person.Key, person.Value);
-                        populace.Remove(person.Key);
-                    }
+                    if (date.CompareTo(max) <= 1)
+                        max = date;
                 }
-            }
-            foreach (var person in newList)
-            {
-                populace.Add(person.Key, person.Value);
-                newList.Remove(person.Key);
-            }
-
+                Console.WriteLine(max);
+                newList.Add(max);
+                foreach(var nj in newList)
+                    Console.WriteLine(nj);
+                list.Remove(max);
+            } while (list.Count > 0);
+            foreach (var i in newList)
+                list.Add(i);
         }
     }
-    }
+ }
