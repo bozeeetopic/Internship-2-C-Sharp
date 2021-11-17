@@ -796,8 +796,74 @@ namespace PopisStanovnistva
             Console.Write("\tDatum rođenja: " + populace[tempOib].dateOfBirth);
             Console.WriteLine();
         }
-        static void StatisticsOfAgeAverage(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
-        static void StatisticsOfAgeMedian(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfAgeAverage(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var sum = 0.0;
+            foreach(var person in populace)
+            {
+                sum += DateTime.Now.Subtract(person.Value.dateOfBirth).Days;
+            }
+            Console.WriteLine("Prosječna dob je: "+ (int)(sum/populace.Count));
+        }
+        static void StatisticsOfAgeMedian(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var tempMinDate = new DateTime(1, 1, 1, 0, 0, 0);
+            var tempMaxDate = DateTime.Now;
+            var discardablePopulace = new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>();
+            var tempMinOib = "";
+            var tempMaxOib = "";
+            foreach (var item in populace)
+            {
+                discardablePopulace.Add(item.Key, (nameAndSurname: item.Value.nameAndSurname, dateOfBirth: item.Value.dateOfBirth));
+            }
+            do
+            {
+                foreach (var person in discardablePopulace)
+                {
+                    if (person.Value.dateOfBirth.CompareTo(tempMinDate) > 1)
+                    {
+                        tempMinDate = person.Value.dateOfBirth;
+                        tempMinOib = person.Key;
+                    }
+                    if (person.Value.dateOfBirth.CompareTo(tempMaxDate) < 1)
+                    {
+                        tempMaxDate = person.Value.dateOfBirth;
+                        tempMaxOib = person.Key;
+                    }
+                }
+                if(discardablePopulace.Count>2)
+                {
+                    discardablePopulace.Remove(tempMinOib);
+                    discardablePopulace.Remove(tempMaxOib);
+                }
+            }
+            while (discardablePopulace.Count > 2);
+            if(discardablePopulace.Count ==1)
+            {
+                foreach(var person in  discardablePopulace)
+                    Console.WriteLine("Dobni medijan je: "+ DateTime.Now.Subtract(person.Value.dateOfBirth).TotalDays/365);
+            }
+            else
+            {
+                tempMinDate = new DateTime(1, 1, 1, 0, 0, 0);
+                tempMaxDate = DateTime.Now;
+                foreach (var person in discardablePopulace)
+                {
+                    if (person.Value.dateOfBirth.CompareTo(tempMinDate) > 1)
+                    {
+                        tempMinDate = person.Value.dateOfBirth;
+                        tempMinOib = person.Key;
+                    }
+                    if (person.Value.dateOfBirth.CompareTo(tempMaxDate) < 1)
+                    {
+                        tempMaxDate = person.Value.dateOfBirth;
+                        tempMaxOib = person.Key;
+                    }
+                }
+                var ageDifference = tempMaxDate.Subtract(tempMinDate).TotalDays;
+                Console.WriteLine("Dobni medijan je: " + DateTime.Now.Subtract(tempMinDate.AddDays(ageDifference)).TotalDays / 365);
+            }
+        }
 
 
         static void SortPopulaceBySurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
