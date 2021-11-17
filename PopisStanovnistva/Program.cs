@@ -19,7 +19,7 @@ namespace PopisStanovnistva
                 }
                 else inputToContinue = "da";
             }
-            while (inputToContinue == "da");
+            while (inputToContinue=="da");
         }
 
         static Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> PopulatePopulace()
@@ -43,16 +43,16 @@ namespace PopisStanovnistva
         static bool Mainfunction(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
         {
             var exitedSubMenu = false;
-            int? userNumberInput;
+            int userNumberInput;
             string oib;
             (string, DateTime) person;
             PrintMenu();
-            userNumberInput = UserIntInput("Vaš izbor: ");
+            userNumberInput = NumberInput("vaš izbor",0, 11);
             switch (userNumberInput)
             {
                 case 1:
                     PrintPopulacePrintChoices();
-                    userNumberInput = UserIntInput("Vaš izbor: ");
+                    userNumberInput = NumberInput("vaš izbor", 0, 4);
                     switch (userNumberInput)
                     {
                         case 1:
@@ -74,11 +74,11 @@ namespace PopisStanovnistva
                     break;
                 case 2:
                     oib = UserOibInput();
-                    PrintPersonByOIB(oib);
+                    FindPersonByOIB(populace,oib);
                     break;
                 case 3:
                     var personToPrint = UserNameAndSurnameInput();
-                    FindPopulaceByNameAndSurname(personToPrint);
+                    FindPopulaceByNameAndSurname(populace,personToPrint);
                     break;
                 case 4:
                     var oibExists= false;
@@ -105,7 +105,7 @@ namespace PopisStanovnistva
                     break;
                 case 8:
                     PrintPopulaceEditingChoices();
-                    userNumberInput = UserIntInput("Vaš izbor: ");
+                    userNumberInput = NumberInput("vaš izbor", 0, 4);
                     oib = UserOibInput();
                     switch (userNumberInput)
                     {
@@ -128,7 +128,7 @@ namespace PopisStanovnistva
                     break;
                 case 9:
                     PrintPopulaceStatisticsChoices();
-                    userNumberInput = UserIntInput("Vaš izbor: ");
+                    userNumberInput = NumberInput("vaš izbor", 0, 10);
                     switch (userNumberInput)
                     {
                         case 1:
@@ -168,7 +168,7 @@ namespace PopisStanovnistva
                     break;
                 case 10:
                     PrintStatisticsChoices();
-                    userNumberInput = UserIntInput("Vaš izbor: ");
+                    userNumberInput = NumberInput("vaš izbor", 0, 4);
                     switch (userNumberInput)
                     {
                         case 1:
@@ -254,25 +254,7 @@ namespace PopisStanovnistva
             Console.WriteLine("0 - Izlaz");
             Console.WriteLine();
         }
-        static int? UserIntInput(string textForUser)
-        {
-            int? userNumberInput;
-            do
-            {
-                Console.Write(textForUser);
-
-                try { userNumberInput = int.Parse(Console.ReadLine()); }
-                catch
-                {
-                    userNumberInput = null;
-                    Console.WriteLine("Pogrešan unos!! Traži se isključivo unos broja!");
-                }
-            }
-            while (userNumberInput is null);
-            return userNumberInput;
-        }
-
-
+      
 
         static void PrintPopulaceDefault(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
         {
@@ -359,9 +341,9 @@ namespace PopisStanovnistva
 
             name = NameOrSurnameInput("ime");
             surname = NameOrSurnameInput("prezime");
-            year = NumberInput("godinu",2021);
-            month = NumberInput("mjesec", 12);
-            day = NumberInput("dan", DaysInMonth(month,year));
+            year = NumberInput("godinu",1,2021);
+            month = NumberInput("mjesec",1, 12);
+            day = NumberInput("dan", 1,DaysInMonth(month,year));
             return (name+" "+surname, new DateTime(year,month,day,0,0,0));
         }
         static string NameOrSurnameInput(string nameOrSurname)
@@ -379,18 +361,18 @@ namespace PopisStanovnistva
             while (input.Length < 1);
             return input;
         }
-        static int NumberInput(string yearOrMonthOrDay,int maxValue)
+        static int NumberInput(string message, int minValue,int maxValue)
         {
             var number = 0;
             var repeatedInput = false;
             do
             {
-                if (repeatedInput) Console.WriteLine("Morate unjeti broj između 1 i " + maxValue+".");
-                Console.Write("Unesite "+ yearOrMonthOrDay+": ");
+                if (repeatedInput) Console.WriteLine("Morate unjeti broj između "+minValue+" i " + maxValue+".");
+                Console.Write("Unesite "+ message+": ");
                 if (!int.TryParse(Console.ReadLine(), out number)) Console.WriteLine("Pogrešan unos, brojeve samo!");
                 repeatedInput = true;
             }
-            while (number > maxValue || number < 1);
+            while (number > maxValue || number <= minValue);
             return number;
         }
         static int DaysInMonth(int month, int year)
@@ -411,9 +393,48 @@ namespace PopisStanovnistva
                 return 28;
             }
         }
-        static void FindPopulaceByNameAndSurname((string nameAndSurname, DateTime dateOfBirth) person) { }
-        static void PrintPersonByOIB(string oib) { }
-        static void ErasePersonByOib(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
+        static void FindPersonByOIB(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace,string oib)
+        {
+            if (populace.ContainsKey(oib)) Console.WriteLine("Za traženi oib podatci slijede...\nIme i prezime: "+populace.GetValueOrDefault(oib).nameAndSurname+
+                "Datum rođenja: "+ populace.GetValueOrDefault(oib).dateOfBirth);
+            else
+                Console.WriteLine("Ne postoji stanovnik sa traženim oib-om!");
+        }
+        static void FindPopulaceByNameAndSurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, (string nameAndSurname, DateTime dateOfBirth) person)
+        {
+            {
+                if (populace.ContainsValue(person))
+                {
+                    Console.WriteLine("Pronađeni su stanovnici: ");
+                    foreach (var item in populace)
+                    {
+                        if (item.Value.nameAndSurname.Equals(person.nameAndSurname) && (item.Value.dateOfBirth.Equals(person.dateOfBirth)))
+                            Console.WriteLine($"OIB: {item.Key}\t" +
+                            $"Ime i prezime: {item.Value.nameAndSurname}\t" +
+                            $" Datum rođenja: {item.Value.dateOfBirth}");
+                     }
+                }
+                else
+                    Console.WriteLine("Ne postoji stanovnik sa traženim podatcima!");
+            }
+        }
+        static void ErasePersonByOib(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib)
+        {
+            var deleteConfirmation = "";
+            if (populace.ContainsKey(oib))
+            {
+                Console.WriteLine("Pronađen stanovnik...\nIme i prezime: " + populace.GetValueOrDefault(oib).nameAndSurname +
+               "Datum rođenja: " + populace.GetValueOrDefault(oib).dateOfBirth);
+                Console.Write("Potvrdite sa 'da' brisanje stanovnika, u slučaju drugačijeg unosa prekid radnje: ");
+                deleteConfirmation = Console.ReadLine();
+                if (deleteConfirmation.Equals("da")) populace.Remove(oib);
+                else Console.WriteLine("Kriv unos, povratak u meni...");
+            }
+            else
+                Console.WriteLine("Ne postoji stanovnik sa traženim oib-om!");
+        }
+
+
         static void DeletePopulaceByNameAndSurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, (string nameAndSurname, DateTime dateOfBirth) person) { }
         static void ErasePopulace(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void EditOib(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
