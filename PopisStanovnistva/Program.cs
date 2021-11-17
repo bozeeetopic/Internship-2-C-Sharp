@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace PopisStanovnistva
 {
+    
     class Program
     {
         static void Main(string[] args)
@@ -621,11 +622,14 @@ namespace PopisStanovnistva
                 if (counter.Value > tempCounter)
                     tempCounter = counter.Value;
             }
-            Console.Write("Ime(na) sa najviše ponavljanja: ");
+            Console.Write("Ime sa najviše ponavljanja: ");
             foreach (var counter in counters)
             {
                 if (counter.Value == tempCounter)
-                    Console.WriteLine(counter.Key+":\t"+counter.Value);
+                {
+                    Console.WriteLine(counter.Key + ":\t" + counter.Value);
+                    return;
+                }
             }
         }
         static void StatisticsOfSurnames(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
@@ -647,15 +651,115 @@ namespace PopisStanovnistva
                 if (counter.Value > tempCounter)
                     tempCounter = counter.Value;
             }
-            Console.Write("Prezime(na) sa najviše ponavljanja: ");
+            Console.Write("Prezime sa najviše ponavljanja: ");
             foreach (var counter in counters)
             {
                 if (counter.Value == tempCounter)
+                {
                     Console.WriteLine(counter.Key + ":\t" + counter.Value);
+                    return;
+                }
             }
         }
-        static void StatisticsOfDates(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
-        static void StatisticsOfSeasons(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfDates(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var counters = new Dictionary<DateTime, int> { };
+            var tempCounter = 0;
+            foreach (var person in populace)
+            {
+                if (counters.ContainsKey(person.Value.dateOfBirth))
+                    counters[person.Value.dateOfBirth]++;
+                else
+                {
+                    counters.Add(person.Value.dateOfBirth, 0);
+                }
+            }
+            foreach (var counter in counters)
+            {
+                if (counter.Value > tempCounter)
+                    tempCounter = counter.Value;
+            }
+            Console.Write("Datum sa najviše rođenih: ");
+            foreach (var counter in counters)
+            {
+                if (counter.Value == tempCounter)
+                {
+                    Console.WriteLine(counter.Key + ":\t" + counter.Value);
+                    return;
+                }
+            }
+        }
+        static void StatisticsOfSeasons(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var counters = new Dictionary<string, int> { };
+            counters.Add("Spring", 0);
+            counters.Add("Summer", 0);
+            counters.Add("Autumn", 0);
+            counters.Add("Winter", 0);
+            var tempCounter = 0;
+
+            foreach (var person in populace)
+            {
+                if (new List<int>() { 4, 5 }.Contains(person.Value.dateOfBirth.Month))
+                {
+                    counters["Spring"]++;
+                }
+                else if (new List<int>() { 7, 8 }.Contains(person.Value.dateOfBirth.Month))
+                {
+                    counters["Summer"]++;
+                }
+                else if (new List<int>() { 10, 11 }.Contains(person.Value.dateOfBirth.Month))
+                {
+                    counters["Autumn"]++;
+                }
+                else if (new List<int>() { 1, 2 }.Contains(person.Value.dateOfBirth.Month))
+                {
+                    counters["Winter"]++;
+                }
+                else if (person.Value.dateOfBirth.Month==12)
+                {
+                    if(person.Value.dateOfBirth.Day<21)
+                        counters["Autumn"]++;
+                    else
+                        counters["Winter"]++;
+                }
+                else if (person.Value.dateOfBirth.Month == 3)
+                {
+                    if (person.Value.dateOfBirth.Day < 21)
+                        counters["Winter"]++;
+                    else
+                        counters["Spring"]++;
+                }
+                else if (person.Value.dateOfBirth.Month == 6)
+                {
+                    if (person.Value.dateOfBirth.Day < 21)
+                        counters["Spring"]++;
+                    else
+                        counters["Summer"]++;
+                }
+                else if (person.Value.dateOfBirth.Month == 9)
+                {
+                    if (person.Value.dateOfBirth.Day < 23)
+                        counters["Summer"]++;
+                    else
+                        counters["Autumn"]++;
+                }
+            }
+            foreach (var counter in counters)
+            {
+                if (counter.Value > tempCounter)
+                    tempCounter = counter.Value;
+            }
+            Console.Write("Sezona sa najviše rođenih: ");
+            foreach (var counter in counters)
+            {
+                if (counter.Value == tempCounter)
+                {
+                    Console.WriteLine(counter.Key + ":\t" + counter.Value);
+                    return;
+                }
+            }
+        }
         static void StatisticsOfYoungestPerson(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void StatisticsOfOldestPerson(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void StatisticsOfAgeAverage(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
