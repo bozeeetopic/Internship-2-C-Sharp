@@ -760,8 +760,42 @@ namespace PopisStanovnistva
                 }
             }
         }
-        static void StatisticsOfYoungestPerson(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
-        static void StatisticsOfOldestPerson(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfYoungestPerson(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var tempDate = new DateTime(1,1,1,0,0,0);
+            var tempOib = "";
+            foreach(var person in populace)
+            {
+                if (person.Value.dateOfBirth.CompareTo(tempDate) > 1)
+                {
+                    tempDate = person.Value.dateOfBirth;
+                    tempOib = person.Key;
+                }
+            }
+            Console.WriteLine("Najmlađi stanovnik je: ");
+            Console.Write("OIB: "+tempOib);
+            Console.Write("\tIme i prezime: "+populace[tempOib].nameAndSurname);
+            Console.Write("\tDatum rođenja: "+ populace[tempOib].dateOfBirth);
+            Console.WriteLine();
+        }
+        static void StatisticsOfOldestPerson(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var tempDate = DateTime.Now;
+            var tempOib = "";
+            foreach (var person in populace)
+            {
+                if (person.Value.dateOfBirth.CompareTo(tempDate) < 1)
+                {
+                    tempDate = person.Value.dateOfBirth;
+                    tempOib = person.Key;
+                }
+            }
+            Console.WriteLine("Najstariji stanovnik je: ");
+            Console.Write("OIB: " + tempOib);
+            Console.Write("\tIme i prezime: " + populace[tempOib].nameAndSurname);
+            Console.Write("\tDatum rođenja: " + populace[tempOib].dateOfBirth);
+            Console.WriteLine();
+        }
         static void StatisticsOfAgeAverage(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void StatisticsOfAgeMedian(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
 
