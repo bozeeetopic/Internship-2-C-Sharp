@@ -27,7 +27,7 @@ namespace PopisStanovnistva
             return new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>
             {
                 //ivo sanader je poseban on si je rezervira ovi oib
-            {"1",(nameAndSurname: "Ivo Sanader", dateOfBirth: DateTime.Now )},
+            {"1\t\t",(nameAndSurname: "Ivo Sanader", dateOfBirth: DateTime.Now )},
             {"12345678910",(nameAndSurname: "Bože Topić", dateOfBirth: new DateTime(1996, 4, 9, 0, 0, 0) )},
             {"21345678910",(nameAndSurname: "Michelle Šarić", dateOfBirth: new DateTime(1998, 8, 19, 0, 0, 0))},
             {"23145678901",(nameAndSurname: "Duje Šarić", dateOfBirth: new DateTime(2008, 8, 8, 0, 0, 0))},
@@ -47,7 +47,7 @@ namespace PopisStanovnistva
             string oib;
             (string, DateTime) person;
             PrintMenu();
-            userNumberInput = NumberInput("vaš izbor",0, 11);
+            userNumberInput = NumberInput("vaš izbor", 0, 11);
             switch (userNumberInput)
             {
                 case 1:
@@ -74,14 +74,14 @@ namespace PopisStanovnistva
                     break;
                 case 2:
                     oib = UserOibInput();
-                    FindPersonByOIB(populace,oib);
+                    FindPersonByOIB(populace, oib);
                     break;
                 case 3:
                     var personToPrint = UserNameSurnameAndDateInput();
-                    FindPopulaceByNameAndSurname(populace,personToPrint);
+                    FindPopulaceByNameAndSurname(populace, personToPrint);
                     break;
                 case 4:
-                    var oibExists= false;
+                    var oibExists = false;
                     do
                     {
                         if (oibExists) Console.WriteLine("Uneseni oib već postoji, pokušajte opet!");
@@ -90,7 +90,7 @@ namespace PopisStanovnistva
                     }
                     while (populace.ContainsKey(oib));
                     person = UserNameSurnameAndDateInput();
-                    populace.Add(oib,person);
+                    populace.Add(oib, person);
                     break;
                 case 5:
                     oib = UserOibInput();
@@ -255,15 +255,54 @@ namespace PopisStanovnistva
             Console.WriteLine("0 - Izlaz");
             Console.WriteLine();
         }
-      
+
+
+        static void Red(string input)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write(input);
+            Console.ForegroundColor = ConsoleColor.Gray;
+        }
+        static void Black(string input)
+        {
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.BackgroundColor = ConsoleColor.DarkGray;
+            Console.Write(input);
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.BackgroundColor = default;
+        }
+        static void Green(string input)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write(input);
+            Console.ForegroundColor = ConsoleColor.Gray;
+        }
+        static void PrintAgeCheck(string oib,string nameAndSurname,DateTime dateOfBirth)
+        {
+            if (DateTime.Now.Subtract(dateOfBirth).Days < 24 * 365 || DateTime.Now.Subtract(dateOfBirth).Days > 65 * 365 && DateTime.Now.Subtract(dateOfBirth).Days <100 * 365)
+                PrintHelper(oib, nameAndSurname, dateOfBirth, Red);
+            else if(DateTime.Now.Subtract(dateOfBirth).Days > 24 * 365 && DateTime.Now.Subtract(dateOfBirth).Days < 65 * 365)
+                PrintHelper(oib, nameAndSurname, dateOfBirth, Green);
+            else
+                PrintHelper(oib, nameAndSurname, dateOfBirth, Black);
+        }
+        static void PrintHelper(string oib, string nameAndSurname, DateTime dateOfBirth,Action<string>colorPrint)
+        {
+            Console.Write("OIB: ");
+            colorPrint(oib);
+            Console.Write("\tIme i prezime: ");
+            colorPrint(nameAndSurname);
+            Console.Write("\tDatum rođenja: ");
+            colorPrint(dateOfBirth.ToString());
+            Console.WriteLine();
+        }
+
 
         static void PrintPopulaceDefault(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
         {
             foreach(var item in populace)
             {
-                Console.WriteLine($"OIB: {item.Key}\t" +
-                    $"Ime i prezime: {item.Value.Item1}\t" +
-                    $"Datum rođenja: {item.Value.Item2}");
+                PrintAgeCheck(item.Key,item.Value.nameAndSurname,item.Value.dateOfBirth);
             }
         }
         static void PrintPopulaceBySurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
@@ -286,9 +325,7 @@ namespace PopisStanovnistva
                         minDate = item.Value.dateOfBirth;
                     }
                 }
-                Console.WriteLine($"OIB: {temporaryOib}\t" +
-                    $"Ime i prezime: {sortedPopulace.GetValueOrDefault(temporaryOib).nameAndSurname}\t" +
-                    $" Datum rođenja: {sortedPopulace.GetValueOrDefault(temporaryOib).dateOfBirth}");
+                PrintAgeCheck(temporaryOib, sortedPopulace[temporaryOib].nameAndSurname, sortedPopulace[temporaryOib].dateOfBirth);
                 sortedPopulace.Remove(temporaryOib);
             }
             while (sortedPopulace.Count >0);
@@ -313,27 +350,35 @@ namespace PopisStanovnistva
                         minDate = item.Value.dateOfBirth;
                     }
                 }
-                Console.WriteLine($"OIB: {temporaryOib}\t" +
-                    $"Ime i prezime: {sortedPopulace.GetValueOrDefault(temporaryOib).nameAndSurname}\t" +
-                    $" Datum rođenja: {sortedPopulace.GetValueOrDefault(temporaryOib).dateOfBirth}");
+                PrintAgeCheck(temporaryOib, sortedPopulace[temporaryOib].nameAndSurname, sortedPopulace[temporaryOib].dateOfBirth);
                 sortedPopulace.Remove(temporaryOib);
             }
             while (sortedPopulace.Count > 0);
         }
         
         
+        static bool StringContainsString(string  a,string b)
+        {
+            foreach(var character in b)
+            {
+                if (a.Contains(character)) return true;
+            }
+            return false;
+        }
         static string UserOibInput()
         {
             var oib = "";
             var repeatedInput = false;
             do
             {
-                if (repeatedInput) Console.WriteLine("Pogrešna duljina oiba, treba bit 11 znakova");
+                if (repeatedInput && (oib.Length != 11)) Console.WriteLine("Pogrešna duljina oiba, treba bit 11 znakova!");
+                if (repeatedInput && StringContainsString(oib.ToLower(),"qwertzuiopšđžćčlkjhgfds ayxcvbnm,.-:;<>!#$%&/()=?*¸¨'")) Console.WriteLine("Oib sadrži znak, moraju biti isključivo brojevi!");
                 Console.Write("Stanovnikov OIB: ");
                 oib = Console.ReadLine();
                 Console.WriteLine();
+                repeatedInput = true;
             }
-            while (oib.Length != 11);
+            while ((oib.Length != 11) || StringContainsString(oib.ToLower(), "qwertzuiopšđžćčlkjhgfds ayxcvbnm,.-:;<>!#$%&/()=?*¸¨'"));
             return oib;
         }
         static (string nameAndSurname, DateTime dateOfBirth) UserNameSurnameAndDateInput() 
@@ -344,9 +389,9 @@ namespace PopisStanovnistva
 
             name = NameOrSurnameInput("ime");
             surname = NameOrSurnameInput("prezime");
-            year = NumberInput("godinu",1,2021);
-            month = NumberInput("mjesec",1, 12);
-            day = NumberInput("dan", 1,DaysInMonth(month,year));
+            year = NumberInput("godinu",1,2022);
+            month = NumberInput("mjesec",1, 13);
+            day = NumberInput("dan", 1,DaysInMonth(month,year)+1);
             return (name+" "+surname, new DateTime(year,month,day,0,0,0));
         }
         static string NameOrSurnameInput(string nameOrSurname)
@@ -375,7 +420,7 @@ namespace PopisStanovnistva
                 if (!int.TryParse(Console.ReadLine(), out number)) Console.WriteLine("Pogrešan unos, brojeve samo!");
                 repeatedInput = true;
             }
-            while (number > maxValue || number <= minValue);
+            while (number >= maxValue || number < minValue);
             return number;
         }
         static int DaysInMonth(int month, int year)
@@ -534,9 +579,81 @@ namespace PopisStanovnistva
         }
 
 
-        static void StatisticsOfUnemployedAndEmployed(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
-        static void StatisticsOfNames(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
-        static void StatisticsOfSurnames(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void StatisticsOfUnemployedAndEmployed(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var employedCount = 0.00;
+            var unemployedCount = 0.00;
+            var deadCount = 0.00;
+            foreach (var person in populace)
+            {
+                if (DateTime.Now.Subtract(person.Value.dateOfBirth).Days < 24 * 365 || DateTime.Now.Subtract(person.Value.dateOfBirth).Days > 65 * 365 && DateTime.Now.Subtract(person.Value.dateOfBirth).Days < 100 * 365)
+                    unemployedCount++;
+                else if (DateTime.Now.Subtract(person.Value.dateOfBirth).Days > 24 * 365 && DateTime.Now.Subtract(person.Value.dateOfBirth).Days < 65 * 365)
+                    employedCount++;
+                else
+                    deadCount++;
+            }
+
+            Console.Write("Unemployed: ");
+            Red((int)(unemployedCount/populace.Count*100)+"");
+            Console.Write("%\tEmployed: ");
+            Green((int)(employedCount / populace.Count * 100) +"");
+            Console.Write("%\tDead: ");
+            Black((int)(deadCount / populace.Count * 100) + "");
+            Console.WriteLine("%");
+        }
+        static void StatisticsOfNames(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var counters = new Dictionary<string, int>{ };
+            var tempCounter = 0;
+            foreach(var person in populace)
+            {
+                var name = person.Value.nameAndSurname.Substring(0, person.Value.nameAndSurname.IndexOf(" "));
+                if (counters.ContainsKey(name))
+                    counters[name]++;
+                else
+                {
+                    counters.Add(name,0);
+                }
+            }
+            foreach (var counter in counters)
+            {
+                if (counter.Value > tempCounter)
+                    tempCounter = counter.Value;
+            }
+            Console.Write("Ime(na) sa najviše ponavljanja: ");
+            foreach (var counter in counters)
+            {
+                if (counter.Value == tempCounter)
+                    Console.WriteLine(counter.Key+":\t"+counter.Value);
+            }
+        }
+        static void StatisticsOfSurnames(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var counters = new Dictionary<string, int> { };
+            var tempCounter = 0;
+            foreach (var person in populace)
+            {
+                var surname = person.Value.nameAndSurname.Substring(person.Value.nameAndSurname.IndexOf(" "));
+                if (counters.ContainsKey(surname))
+                    counters[surname]++;
+                else
+                {
+                    counters.Add(surname, 0);
+                }
+            }
+            foreach (var counter in counters)
+            {
+                if (counter.Value > tempCounter)
+                    tempCounter = counter.Value;
+            }
+            Console.Write("Prezime(na) sa najviše ponavljanja: ");
+            foreach (var counter in counters)
+            {
+                if (counter.Value == tempCounter)
+                    Console.WriteLine(counter.Key + ":\t" + counter.Value);
+            }
+        }
         static void StatisticsOfDates(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void StatisticsOfSeasons(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void StatisticsOfYoungestPerson(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
