@@ -897,7 +897,68 @@ namespace PopisStanovnistva
             }
 
         }
-        static void SortPopulaceByDateOfBirth(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
-        static void SortPopulaceByDateOfBirthDescending(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void SortPopulaceByDateOfBirth(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var newList = new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>();
+            var dates = new List<DateTime>();
+            foreach (var person in populace)
+            {
+                var date = person.Value.dateOfBirth;
+                if (!dates.Contains(date))
+                {
+                    dates.Add(date);
+                }
+            }
+            dates.Sort();
+            foreach (var date in dates)
+            {
+                foreach (var person in populace)
+                {
+                    if (person.Value.dateOfBirth == date)
+                    {
+                        newList.Add(person.Key, person.Value);
+                        populace.Remove(person.Key);
+                    }
+                }
+            }
+            foreach (var person in newList)
+            {
+                populace.Add(person.Key, person.Value);
+                newList.Remove(person.Key);
+            }
+
+        }
+        static void SortPopulaceByDateOfBirthDescending(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var newList = new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>();
+            var dates = new List<DateTime>();
+            foreach (var person in populace)
+            {
+                var date = person.Value.dateOfBirth;
+                if (!dates.Contains(date))
+                {
+                    dates.Add(date);
+                }
+            }
+            dates.Sort();
+            dates.Reverse();
+            foreach (var date in dates)
+            {
+                foreach (var person in populace)
+                {
+                    if (person.Value.dateOfBirth == date)
+                    {
+                        newList.Add(person.Key, person.Value);
+                        populace.Remove(person.Key);
+                    }
+                }
+            }
+            foreach (var person in newList)
+            {
+                populace.Add(person.Key, person.Value);
+                newList.Remove(person.Key);
+            }
+
+        }
     }
     }
