@@ -866,7 +866,37 @@ namespace PopisStanovnistva
         }
 
 
-        static void SortPopulaceBySurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+        static void SortPopulaceBySurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
+        {
+            var newList = new Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)>();
+            var surnames = new List<string>();
+            foreach (var person in populace)
+            {
+                var surname = person.Value.nameAndSurname.Substring(person.Value.nameAndSurname.IndexOf(" "));
+                if(!surnames.Contains(surname))
+                {
+                    surnames.Add(surname);
+                }
+            }
+            surnames.Sort();
+            foreach (var surname in surnames)
+            {
+                foreach (var person in populace)
+                {
+                    if (person.Value.nameAndSurname.Substring(person.Value.nameAndSurname.IndexOf(" "))==surname)
+                    {
+                        newList.Add(person.Key, person.Value);
+                        populace.Remove(person.Key);
+                    }
+                }
+            }
+            foreach (var person in newList)
+            {
+                    populace.Add(person.Key, person.Value);
+                    newList.Remove(person.Key);
+            }
+
+        }
         static void SortPopulaceByDateOfBirth(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void SortPopulaceByDateOfBirthDescending(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
     }
