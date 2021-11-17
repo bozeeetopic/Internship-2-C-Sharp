@@ -194,6 +194,7 @@ namespace PopisStanovnistva
                     Console.WriteLine("Nepostojeći izbor!");
                     break;
             }
+            Console.WriteLine();
             return exitedSubMenu;
         }
         static void PrintMenu()
@@ -476,7 +477,6 @@ namespace PopisStanovnistva
         {
             if (populace.ContainsKey(oib))
             {
-                var deleteConfirmation = "";
                 var newOib = "";
                 var oibExists = false;
                 do
@@ -487,17 +487,10 @@ namespace PopisStanovnistva
                 }
                 while (populace.ContainsKey(newOib));
                 Console.Write("Potvrdite sa 'da' zamjenu oiba stanovnika, "+oib+" sa "+ newOib+".");
-                deleteConfirmation = Console.ReadLine();
-                if (deleteConfirmation.Equals("da"))
+                if (Console.ReadLine().Equals("da"))
                 {
-                    foreach (var item in populace)
-                    {
-                        if (item.Key == oib)
-                        {
-                            populace.Add(newOib, item.Value);
-                            populace.Remove(oib);
-                        }
-                    }
+                populace.Add(newOib, populace[oib]);
+                populace.Remove(oib);
                 }
                 else Console.WriteLine("Kriv unos, povratak u meni...");
                     
@@ -507,11 +500,38 @@ namespace PopisStanovnistva
         }
         static void EditNameAndSurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib)
         {
-            if (populace.ContainsKey(oib)) Console.WriteLine("Za traženi oib ime i prezime su: " + populace.GetValueOrDefault(oib).nameAndSurname);
+            if (populace.ContainsKey(oib))
+            {
+                Console.WriteLine("Za traženi oib ime i prezime su: " + populace.GetValueOrDefault(oib).nameAndSurname);
+                var newName = NameOrSurnameInput("ime");
+                var newSurame = NameOrSurnameInput("prezime");
+                Console.Write("Potvrdite sa 'da' zamjenu imena i prezimena stanovnika: " + populace.GetValueOrDefault(oib).nameAndSurname + " -> " + newName + " " + newSurame + ".");
+                if (Console.ReadLine().Equals("da"))
+                {
+                      populace[oib] = (newName + " " + newSurame, populace[oib].dateOfBirth);
+                }
+            }
             else
                 Console.WriteLine("Ne postoji stanovnik sa traženim oib-om!");
         }
-        static void EditDateOfBirth(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
+        static void EditDateOfBirth(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib)
+        {
+            if (populace.ContainsKey(oib))
+            {
+                Console.WriteLine("Za traženi oib datum rođenja je: " + populace.GetValueOrDefault(oib).dateOfBirth);
+                int year, month, day;
+                year = NumberInput("godinu", 1, 2021);
+                month = NumberInput("mjesec", 1, 12);
+                day = NumberInput("dan", 1, DaysInMonth(month, year));
+                Console.Write("Potvrdite sa 'da' zamjenu datuma rođenja stanovnika: " + populace.GetValueOrDefault(oib).dateOfBirth + " -> " + year + "/" + month + "/" + day+"/0/0/0.");
+                if (Console.ReadLine().Equals("da"))
+                {
+                    populace[oib] = (populace[oib].nameAndSurname, new DateTime(year,month,day,0,0,0));
+                }
+            }
+            else
+                Console.WriteLine("Ne postoji stanovnik sa traženim oib-om!");
+        }
 
 
         static void StatisticsOfUnemployedAndEmployed(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
