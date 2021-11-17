@@ -337,16 +337,82 @@ namespace PopisStanovnistva
             }
             while (sortedPopulace.Count > 0);
         }
-        static void FindPopulaceByNameAndSurname((string nameAndSurname, DateTime dateOfBirth) person) { }
         static string UserOibInput()
         {
-            return "";
+            var oib = "";
+            var repeatedInput = false;
+            do
+            {
+                if (repeatedInput) Console.WriteLine("Pogrešna duljina oiba, treba bit 11 znakova");
+                Console.Write("Stanovnikov OIB: ");
+                oib = Console.ReadLine();
+                Console.WriteLine();
+            }
+            while (oib.Length != 11);
+            return oib;
         }
-        static void PrintPersonByOIB(string oib)
+        static (string nameAndSurname, DateTime dateOfBirth) UserNameAndSurnameInput() 
         {
+            var surname = "";
+            var name = "";
+            int year, month, day;
 
+            name = NameOrSurnameInput("ime");
+            surname = NameOrSurnameInput("prezime");
+            year = NumberInput("godinu",2021);
+            month = NumberInput("mjesec", 12);
+            day = NumberInput("dan", DaysInMonth(month,year));
+            return (name+" "+surname, new DateTime(year,month,day,0,0,0));
         }
-        static (string nameAndSurname, DateTime dateOfBirth) UserNameAndSurnameInput() { return ("", DateTime.Now); }
+        static string NameOrSurnameInput(string nameOrSurname)
+        {
+            var repeatedInput = false;
+            var input = "";
+            do
+            {
+                if (repeatedInput) Console.WriteLine("Duljina "+ nameOrSurname + "na mora biti 1!");
+                Console.Write("Stanovnikovo "+ nameOrSurname+": ");
+                input = Console.ReadLine();
+                Console.WriteLine();
+                repeatedInput = true;
+            }
+            while (input.Length < 1);
+            return input;
+        }
+        static int NumberInput(string yearOrMonthOrDay,int maxValue)
+        {
+            var number = 0;
+            var repeatedInput = false;
+            do
+            {
+                if (repeatedInput) Console.WriteLine("Morate unjeti broj između 1 i " + maxValue+".");
+                Console.Write("Unesite "+ yearOrMonthOrDay+": ");
+                if (!int.TryParse(Console.ReadLine(), out number)) Console.WriteLine("Pogrešan unos, brojeve samo!");
+                repeatedInput = true;
+            }
+            while (number > maxValue || number < 1);
+            return number;
+        }
+        static int DaysInMonth(int month, int year)
+        {
+            if (month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) return 31;
+            else if (month == 4 || month == 6 || month == 9 || month == 11) return 30;
+            else
+            {
+                if (year % 4 == 0)
+                {
+                    if(year % 100 == 0)
+                    {
+                        if (year % 400 == 0) return 29;
+                        return 28;
+                    }
+                    return 29;
+                }
+                return 28;
+            }
+        }
+        static void FindPopulaceByNameAndSurname((string nameAndSurname, DateTime dateOfBirth) person) { }
+        static void PrintPersonByOIB(string oib) { }
         static void ErasePersonByOib(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
         static void DeletePopulaceByNameAndSurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, (string nameAndSurname, DateTime dateOfBirth) person) { }
         static void ErasePopulace(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
