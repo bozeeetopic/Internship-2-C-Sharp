@@ -472,9 +472,48 @@ namespace PopisStanovnistva
 
 
 
-        static void EditOib(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
-        static void EditNameAndSurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
+        static void EditOib(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib)
+        {
+            if (populace.ContainsKey(oib))
+            {
+                var deleteConfirmation = "";
+                var newOib = "";
+                var oibExists = false;
+                do
+                {
+                    if (oibExists) Console.WriteLine("Uneseni oib već postoji, pokušajte opet!");
+                    newOib = UserOibInput();
+                    oibExists = true;
+                }
+                while (populace.ContainsKey(newOib));
+                Console.Write("Potvrdite sa 'da' zamjenu oiba stanovnika, "+oib+" sa "+ newOib+".");
+                deleteConfirmation = Console.ReadLine();
+                if (deleteConfirmation.Equals("da"))
+                {
+                    foreach (var item in populace)
+                    {
+                        if (item.Key == oib)
+                        {
+                            populace.Add(newOib, item.Value);
+                            populace.Remove(oib);
+                        }
+                    }
+                }
+                else Console.WriteLine("Kriv unos, povratak u meni...");
+                    
+            }
+            else
+                Console.WriteLine("Ne postoji stanovnik sa traženim oib-om!");
+        }
+        static void EditNameAndSurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib)
+        {
+            if (populace.ContainsKey(oib)) Console.WriteLine("Za traženi oib ime i prezime su: " + populace.GetValueOrDefault(oib).nameAndSurname);
+            else
+                Console.WriteLine("Ne postoji stanovnik sa traženim oib-om!");
+        }
         static void EditDateOfBirth(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace, string oib) { }
+
+
         static void StatisticsOfUnemployedAndEmployed(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void StatisticsOfNames(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void StatisticsOfSurnames(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
@@ -484,6 +523,8 @@ namespace PopisStanovnistva
         static void StatisticsOfOldestPerson(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void StatisticsOfAgeAverage(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void StatisticsOfAgeMedian(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
+
+
         static void SortPopulaceBySurname(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void SortPopulaceByDateOfBirth(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
         static void SortPopulaceByDateOfBirthDescending(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace) { }
