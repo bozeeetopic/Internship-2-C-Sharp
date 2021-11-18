@@ -394,11 +394,18 @@ namespace PopisStanovnistva
         }
         static (string nameAndSurname, DateTime dateOfBirth) UserNameSurnameAndDateInput() 
         {
+            int month, day;
             var name = NameOrSurnameInput("ime");
             var surname = NameOrSurnameInput("prezime");
-            var year = NumberInput("godinu",1,2022);
-            var month = NumberInput("mjesec",1, 13);
-            var day = NumberInput("dan", 1,DaysInMonth(month,year)+1);
+            var year = NumberInput("godinu",1,DateTime.Now.Year+1);
+            if(year== DateTime.Now.Year)
+                month = NumberInput("mjesec", 1, DateTime.Now.Month+1);
+            else 
+                month = NumberInput("mjesec",1, 13);
+            if(year==DateTime.Now.Year&&month==DateTime.Now.Month)
+                day = NumberInput("dan", 1, DateTime.Now.Day + 1);
+            else
+                day = NumberInput("dan", 1,DaysInMonth(month,year)+1);
             return (name+" "+surname, new DateTime(year,month,day,0,0,0));
         }
         static string NameOrSurnameInput(string nameOrSurname)
