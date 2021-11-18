@@ -176,10 +176,16 @@ namespace PopisStanovnistva
                             break;
                         case 2:
                             SortPopulaceByDate(populace,SortDatesUp);
+                            Console.WriteLine("OIB:\t\tIme i prezime:\t\t\tDatum rođenja:");
+                            foreach (var sortedPerson in populace)
+                                Console.WriteLine(sortedPerson.Key + "\t" + sortedPerson.Value.nameAndSurname + "\t" + sortedPerson.Value.dateOfBirth);
                             break;
                         case 3:
                             SortPopulaceByDate(populace, SortDatesUp); //iz nekog razloga mi je izbugano reverzno sortiranje iako je kod identican
                             SortPopulaceByDate(populace, SortDatesDown); //al radi ako je vec sortirano na normalan nacin pa eto ¯\_(ツ)_/¯
+                            Console.WriteLine("OIB:\t\tIme i prezime:\t\t\tDatum rođenja:");
+                            foreach (var sortedPerson in populace)
+                                Console.WriteLine(sortedPerson.Key + "\t" + sortedPerson.Value.nameAndSurname + "\t" + sortedPerson.Value.dateOfBirth);
                             break;
                         case 0:
                             exitedSubMenu = true;
@@ -628,7 +634,7 @@ namespace PopisStanovnistva
                     counters[name]++;
                 else
                 {
-                    counters.Add(name,0);
+                    counters.Add(name,1);
                 }
             }
             foreach (var counter in counters)
@@ -657,7 +663,7 @@ namespace PopisStanovnistva
                     counters[surname]++;
                 else
                 {
-                    counters.Add(surname, 0);
+                    counters.Add(surname, 1);
                 }
             }
             foreach (var counter in counters)
@@ -685,7 +691,7 @@ namespace PopisStanovnistva
                     counters[person.Value.dateOfBirth]++;
                 else
                 {
-                    counters.Add(person.Value.dateOfBirth, 0);
+                    counters.Add(person.Value.dateOfBirth, 1);
                 }
             }
             foreach (var counter in counters)
@@ -822,6 +828,7 @@ namespace PopisStanovnistva
                 sum += DateTime.Now.Subtract(person.Value.dateOfBirth).Days;
                 Console.WriteLine(sum);
             }
+            sum /= 365;
             Console.WriteLine("Prosječna dob je: "+ (int)(sum/populace.Count));
         }
         static void StatisticsOfAgeMedian(Dictionary<string, (string nameAndSurname, DateTime dateOfBirth)> populace)
@@ -925,8 +932,10 @@ namespace PopisStanovnistva
                 }
             }
             populace.Clear();
+            Console.WriteLine("OIB:\t\tIme i prezime:\t\t\tDatum rođenja:");
             foreach (var person in newList)
             {
+                Console.WriteLine( person.Key +"\t"+person.Value.nameAndSurname+"\t"+person.Value.dateOfBirth);
                 populace.Add(person.Key, person.Value);
                 newList.Remove(person.Key);
             }
