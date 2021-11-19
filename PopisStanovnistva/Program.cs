@@ -30,6 +30,7 @@ namespace PopisStanovnistva
             {
                 //ivo sanader je poseban on si je rezervira ovi oib
             {"1\t\t",(nameAndSurname: "Ivo Sanader", dateOfBirth: DateTime.Now )},
+            {"13333333333",(nameAndSurname: "XÆ A-X11", dateOfBirth: new DateTime(1992, 1, 1, 0, 0, 0) )},
             {"12345678910",(nameAndSurname: "Bože Topić", dateOfBirth: new DateTime(1996, 4, 9, 0, 0, 0) )},
             {"21345678910",(nameAndSurname: "Michelle Šarić", dateOfBirth: new DateTime(1998, 8, 19, 0, 0, 0))},
             {"23145678901",(nameAndSurname: "Duje Šarić", dateOfBirth: new DateTime(2008, 8, 8, 0, 0, 0))},
@@ -73,7 +74,7 @@ namespace PopisStanovnistva
                     }
                     break;
                 case 2:
-                    oib = UserOibInput();
+                    oib = UserOibInput("qwertzuiopšđžćčlkjhgfds ayxcvbnm,.-:;<>!#$%&/()=?*¸¨'"+'"');
                     FindPersonByOIB(populace, oib);
                     break;
                 case 3:
@@ -85,7 +86,7 @@ namespace PopisStanovnistva
                     do
                     {
                         if (oibExists) Console.WriteLine("Uneseni oib već postoji, pokušajte opet!");
-                        oib = UserOibInput();
+                        oib = UserOibInput("qwertzuiopšđžćčlkjhgfds ayxcvbnm,.-:;<>!#$%&/()=?*¸¨'" + '"');
                         oibExists = true;
                     }
                     while (populace.ContainsKey(oib));
@@ -93,7 +94,7 @@ namespace PopisStanovnistva
                     populace.Add(oib, person);
                     break;
                 case 5:
-                    oib = UserOibInput();
+                    oib = UserOibInput("qwertzuiopšđžćčlkjhgfds ayxcvbnm,.-:;<>!#$%&/()=?*¸¨'" + '"');
                     ErasePersonByOib(populace, oib);
                     break;
                 case 6:
@@ -106,7 +107,7 @@ namespace PopisStanovnistva
                 case 8:
                     PrintPopulaceEditingChoices();
                     userNumberInput = NumberInput("vaš izbor", 0, 4);
-                    oib = UserOibInput();
+                    oib = UserOibInput("qwertzuiopšđžćčlkjhgfds ayxcvbnm,.-:;<>!#$%&/()=?*¸¨'" + '"');
                     switch (userNumberInput)
                     {
                         case 1:
@@ -376,27 +377,27 @@ namespace PopisStanovnistva
             }
             return false;
         }
-        static string UserOibInput()
+        static string UserOibInput(string forbiddenString) //qwertzuiopšđžćčlkjhgfds ayxcvbnm,.-:;<>!#$%&/()=?*¸¨'
         {
             var oib = "";
             var repeatedInput = false;
             do
             {
                 if (repeatedInput && (oib.Length != 11)) Console.WriteLine("Pogrešna duljina oiba, treba bit 11 znakova!");
-                if (repeatedInput && StringContainsString(oib.ToLower(),"qwertzuiopšđžćčlkjhgfds ayxcvbnm,.-:;<>!#$%&/()=?*¸¨'")) Console.WriteLine("Oib sadrži znak, moraju biti isključivo brojevi!");
+                if (repeatedInput && StringContainsString(oib.ToLower(), forbiddenString)) Console.WriteLine("Oib sadrži znak, moraju biti isključivo brojevi!");
                 Console.Write("Stanovnikov OIB: ");
                 oib = Console.ReadLine();
                 Console.WriteLine();
                 repeatedInput = true;
             }
-            while ((oib.Length != 11) || StringContainsString(oib.ToLower(), "qwertzuiopšđžćčlkjhgfds ayxcvbnm,.-:;<>!#$%&/()=?*¸¨'"));
+            while ((oib.Length != 11) || StringContainsString(oib.ToLower(), forbiddenString));
             return oib;
         }
         static (string nameAndSurname, DateTime dateOfBirth) UserNameSurnameAndDateInput() 
         {
             int month, day;
-            var name = NameOrSurnameInput("ime");
-            var surname = NameOrSurnameInput("prezime");
+            var name = NameOrSurnameInput("ime","");
+            var surname = NameOrSurnameInput("prezime","");
             var year = NumberInput("godinu",1,DateTime.Now.Year+1);
             if(year== DateTime.Now.Year)
                 month = NumberInput("mjesec", 1, DateTime.Now.Month+1);
@@ -408,19 +409,20 @@ namespace PopisStanovnistva
                 day = NumberInput("dan", 1,DaysInMonth(month,year)+1);
             return (name+" "+surname, new DateTime(year,month,day,0,0,0));
         }
-        static string NameOrSurnameInput(string nameOrSurname)
+        static string NameOrSurnameInput(string nameOrSurname,string forbiddenString)
         {
             var repeatedInput = false;
             var input = "";
             do
             {
-                if (repeatedInput) Console.WriteLine("Duljina "+ nameOrSurname + "na mora biti 1!");
+                if (repeatedInput && (input.Length <1)) Console.WriteLine("Duljina "+ nameOrSurname + "na mora biti 1!");
+                if (repeatedInput && StringContainsString(input.ToLower(), forbiddenString)) Console.WriteLine(nameOrSurname+" sadrži znak, moraju biti isključivo brojevi!");
                 Console.Write("Stanovnikovo "+ nameOrSurname+": ");
-                input = Console.ReadLine();
+                input = Console.ReadLine();         //nema zahtjeva za imenom jer postoje ljudi sa jako cudnim imenima
                 Console.WriteLine();
                 repeatedInput = true;
             }
-            while (input.Length < 1);
+            while ((input.Length < 1)&&(StringContainsString(input.ToLower(), forbiddenString)));
             return input;
         }
         static int NumberInput(string message, int minValue,int maxValue)
@@ -522,7 +524,7 @@ namespace PopisStanovnistva
                     if (keysToErase.Count > 1)
                     {
                         Console.WriteLine("Pronađeno je više osoba, upišite oib osobe koju želite obrisati: ");
-                        ErasePersonByOib(populace, UserOibInput());
+                        ErasePersonByOib(populace, UserOibInput("qwertzuiopšđžćčlkjhgfds ayxcvbnm,.-:;<>!#$%&/()=?*¸¨'" + '"'));
                     }
                     else
                         ErasePersonByOib(populace, keyToErase);
@@ -554,7 +556,7 @@ namespace PopisStanovnistva
                 do
                 {
                     if (oibExists) Console.WriteLine("Uneseni oib već postoji, pokušajte opet!");
-                    newOib = UserOibInput();
+                    newOib = UserOibInput("qwertzuiopšđžćčlkjhgfds ayxcvbnm,.-:;<>!#$%&/()=?*¸¨'" + '"');
                     oibExists = true;
                 }
                 while (populace.ContainsKey(newOib));
@@ -575,8 +577,8 @@ namespace PopisStanovnistva
             if (populace.ContainsKey(oib))
             {
                 Console.WriteLine("Za traženi oib ime i prezime su: " + populace.GetValueOrDefault(oib).nameAndSurname);
-                var newName = NameOrSurnameInput("ime");
-                var newSurame = NameOrSurnameInput("prezime");
+                var newName = NameOrSurnameInput("ime","");
+                var newSurame = NameOrSurnameInput("prezime","");
                 Console.Write("Potvrdite sa 'da' zamjenu imena i prezimena stanovnika: " + populace.GetValueOrDefault(oib).nameAndSurname + " -> " + newName + " " + newSurame + ".");
                 if (Console.ReadLine().Equals("da"))
                 {
@@ -694,11 +696,11 @@ namespace PopisStanovnistva
             var tempCounter = 0;
             foreach (var person in populace)
             {
-                if (counters.ContainsKey(person.Value.dateOfBirth))
-                    counters[person.Value.dateOfBirth]++;
+                if (counters.ContainsKey(new DateTime(1, person.Value.dateOfBirth.Month, person.Value.dateOfBirth.Day, 0, 0, 0)))
+                    counters[new DateTime(1,person.Value.dateOfBirth.Month, person.Value.dateOfBirth.Day,0,0,0)]++;
                 else
                 {
-                    counters.Add(person.Value.dateOfBirth, 1);
+                    counters.Add(new DateTime(1, person.Value.dateOfBirth.Month, person.Value.dateOfBirth.Day, 0, 0, 0), 1);
                 }
             }
             foreach (var counter in counters)
@@ -711,7 +713,7 @@ namespace PopisStanovnistva
             {
                 if (counter.Value == tempCounter)
                 {
-                    Console.WriteLine(counter.Key + ":\t" + counter.Value);
+                    Console.WriteLine(counter.Key.Day+" / " + counter.Key.Month + ":\t" + counter.Value);
                     return;
                 }
             }
